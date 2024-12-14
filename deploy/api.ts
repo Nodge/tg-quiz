@@ -1,4 +1,3 @@
-// import { bus, eventBusArn } from './event-bus';
 import { usersTable, answersTable, quizStateTable } from './db';
 import { botToken } from './secrets';
 
@@ -7,10 +6,8 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
         route: {
             handler: {
                 link: [botToken, usersTable, answersTable, quizStateTable],
-                // link: [bus],
                 environment: {
                     TELEGRAM_BOT_TOKEN: botToken.value,
-                    // EVENT_BUS_ARN: eventBusArn,
                 },
             },
         },
@@ -18,7 +15,7 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
     accessLog: {
         retention: '1 month',
     },
-    // cors: false,
+    cors: true,
 });
 
 api.route('GET /current', 'src/api/api-current-question.handler');
