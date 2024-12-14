@@ -2,21 +2,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Medal } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import type { LeaderBoardItem } from '../../api/api-leaderboard';
 import { getLeaderboard } from '../lib/api';
+import { usePolling } from '@/lib/usePolling';
+
+const POLLING_INTERVAL = 5000;
 
 export function LeaderboardPage() {
     const [users, setUsers] = useState<LeaderBoardItem[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        getLeaderboard().then(data => {
-            setUsers(data);
-            setLoading(false);
-        });
-    }, []);
+    usePolling(() => getLeaderboard().then(data => {
+        setUsers(data);
+        setLoading(false);
+    }), POLLING_INTERVAL)
 
     return (
         <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8" style={{ maxWidth: '960px' }}>
