@@ -1,5 +1,4 @@
 export interface User {
-    // id: string;
     telegramId: string;
     telegramLogin: string;
     telegramAvatarUrl: string | null;
