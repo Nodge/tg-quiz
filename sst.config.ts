@@ -7,7 +7,7 @@ export default $config({
     app(input) {
         return {
             name: 'infra-quiz',
-            removal: input?.stage === 'production' ? 'retain' : 'remove',
+            removal: 'remove',
             home: 'aws',
             providers: {
                 aws: {
