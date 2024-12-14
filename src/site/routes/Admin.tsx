@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 
 import type { Question } from '../../model/Question';
 import type { QuestionState } from '../../model/QuizState';
-import { getCurrentQuestion, startNextQuestion, stopCurrentQuestion } from '../lib/api';
+import { getCurrentQuestion, resetState, startNextQuestion, stopCurrentQuestion } from '../lib/api';
 import { Link } from 'react-router-dom';
 
 enum QuizStatus {
@@ -40,6 +40,16 @@ export function AdminPage() {
         stopCurrentQuestion().then(data => {
             setLoading(false);
             setCurrentQuestionState(data.state);
+        });
+    };
+
+    const reset = () => {
+        setLoading(true);
+        resetState().then(data => {
+            setLoading(false);
+            setCurrentQuestion(data.question);
+            setCurrentQuestionState(data.state);
+            setHasNextQuestion(data.hasNextQuestion);
         });
     };
 
@@ -102,6 +112,14 @@ export function AdminPage() {
                     </Link>
                 </CardContent>
             </Card>
+
+            {quizStatus === QuizStatus.FINISHED && (
+                <div className="flex justify-center">
+                    <Button variant="link" onClick={reset}>
+                        Reset state
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

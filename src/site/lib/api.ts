@@ -1,5 +1,6 @@
 import type { CurrentQuestionResponse } from '../../api/api-current-question';
 import type { LeaderBoardItem } from '../../api/api-leaderboard';
+import type { ResetResponse } from '../../api/api-reset';
 import type { NextQuestionResponse } from '../../api/api-start-question';
 import type { StopQuestionRequest, StopQuestionResponse } from '../../api/api-stop-question';
 
@@ -48,6 +49,15 @@ export async function getLeaderboard(): Promise<LeaderBoardItem[]> {
     const res = await fetch(`${API_URL}/leaderboard`, { method: 'GET' });
     if (!res.ok) {
         throw new Error('Failed to get leaderboard');
+    }
+    const data = await res.json();
+    return data;
+}
+
+export async function resetState(): Promise<ResetResponse> {
+    const res = await fetch(`${API_URL}/reset`, { method: 'POST' });
+    if (!res.ok) {
+        throw new Error('Failed to reset state');
     }
     const data = await res.json();
     return data;

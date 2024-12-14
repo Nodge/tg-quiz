@@ -47,4 +47,17 @@ export class QiuzStateRepository {
             Item: data,
         });
     }
+
+    public async resetState(): Promise<void> {
+        const data: QuizState = {
+            id: STATE_ID,
+            currentQuestionId: null,
+            currentQuestionState: 'STOPPED',
+        };
+
+        await this.db.put({
+            TableName: Resource.QuizStateTable.name,
+            Item: data,
+        });
+    }
 }
