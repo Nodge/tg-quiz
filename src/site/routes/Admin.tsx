@@ -44,21 +44,14 @@ export function AdminPage() {
     };
 
     useEffect(() => {
-        const update = () => {
-            getCurrentQuestion().then(data => {
-                setLoading(false);
-                setCurrentQuestion(data.question);
-                setCurrentQuestionState(data.state);
-                setHasNextQuestion(data.hasNextQuestion);
-                setActiveUsers(data.usersCount);
-                setQuestionsCount(data.questionsCount);
-            });
-        };
-
-        update();
-
-        const interval = setInterval(update, 5000);
-        return () => clearInterval(interval);
+        getCurrentQuestion().then(data => {
+            setLoading(false);
+            setCurrentQuestion(data.question);
+            setCurrentQuestionState(data.state);
+            setHasNextQuestion(data.hasNextQuestion);
+            setActiveUsers(data.usersCount);
+            setQuestionsCount(data.questionsCount);
+        });
     }, []);
 
     const quizStatus = getQuizStatus(currentQuestion, currentQuestionState, hasNextQuestion, isLoading);

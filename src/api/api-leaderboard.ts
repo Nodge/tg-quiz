@@ -27,6 +27,10 @@ export const handler = apiHandler(async () => {
         });
     }
 
+    data.sort((a, b) => {
+        return b.score - a.score;
+    });
+
     return {
         statusCode: 200,
         body: JSON.stringify(data),

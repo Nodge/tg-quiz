@@ -104,12 +104,12 @@ export function initCommands(bot: Bot) {
         });
         await users.setLastMessageId(user, null, null);
 
+        await ctx.answerCbQuery('Ответ принят');
+
         const text = ['Вопрос:', question.title, '', 'Ваш ответ:', answer.title].join('\n');
         await ctx.editMessageText(text, {
             reply_markup: undefined,
         });
-
-        await ctx.reply('Ответ принят');
     });
 
     bot.hears(/.*/, async ctx => {
