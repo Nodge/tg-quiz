@@ -73,10 +73,6 @@ export function initCommands(bot: Bot) {
         if (messageId !== user.currentMessageId) {
             console.warn(`Outdated message reply: ${messageId} !== ${user.currentMessageId}`);
             await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-
-            // await ctx.editMessageText(ctx.callbackQuery.message., {
-            //     reply_markup: undefined,
-            // });
             return;
         }
 
@@ -121,9 +117,6 @@ export function initCommands(bot: Bot) {
             'нууу епт, опять ты за свое??',
         ];
         const index = Math.floor(Math.random() * messages.length);
-
-        console.log({ index });
-
         await ctx.reply(messages[index]);
     });
 }
