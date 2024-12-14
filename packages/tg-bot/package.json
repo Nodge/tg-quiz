@@ -1,0 +1,19 @@
+{
+    "name": "@sst-app-example/tg-bot",
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "test": "sst shell vitest",
+        "typecheck": "tsc -noEmit"
+    },
+    "dependencies": {
+        "sst": "3.4.3",
+        "telegraf": "4.16.3"
+    },
+    "devDependencies": {
+        "@tsconfig/node20": "20.1.4",
+        "@types/aws-lambda": "8.10.143",
+        "@types/node": "20.14.15",
+        "vitest": "2.0.5"
+    }
+}
