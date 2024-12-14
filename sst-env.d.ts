@@ -34,5 +34,9 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "ZoomLink": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
   }
 }

@@ -30,11 +30,13 @@ export function initCommands(bot: Bot) {
         const users = new UserRepository();
         await users.createUser(user);
 
+        const zoomLink = Resource.ZoomLink.value;
+
         const message = [
             `${name ?? 'Дружок'}, добро пожаловать в Infra Quiz 2024\\!`,
             '',
             'Для участия в квизе:',
-            '– залетай на [встречу в zoom](https://ya.ru/)',
+            `– залетай на [встречу в zoom](${zoomLink})`,
             '– слушай интересные истории и получай задания от ведущего',
             '– отвечай на вопросы через этот чат, нажимая на кнопку с правильным ответом',
             '– побеждай и получай новогоднюю ачивку на staff\\!',

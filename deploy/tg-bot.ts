@@ -1,12 +1,12 @@
 import { usersTable, answersTable, quizStateTable } from './db';
-import { botToken } from './secrets';
+import { botToken, zoomLink } from './secrets';
 import { site } from './site';
 
 export const botApi = new sst.aws.ApiGatewayV2('BotApiRouter', {
     transform: {
         route: {
             handler: {
-                link: [botToken, usersTable, answersTable, quizStateTable],
+                link: [botToken, zoomLink, usersTable, answersTable, quizStateTable],
                 environment: {
                     TELEGRAM_BOT_TOKEN: botToken.value,
                     APP_STAGE: $app.stage,
