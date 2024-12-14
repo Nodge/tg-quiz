@@ -98,7 +98,7 @@ export function initCommands(bot: Bot) {
 
         await answers.createAnswer({
             userId: user.telegramId,
-            questionId: question.title,
+            questionId: question.id,
             answer: answer.title,
             score: answer.score,
         });
@@ -108,6 +108,8 @@ export function initCommands(bot: Bot) {
         await ctx.editMessageText(text, {
             reply_markup: undefined,
         });
+
+        await ctx.reply('Ответ принят');
     });
 
     bot.hears(/.*/, async ctx => {

@@ -1,7 +1,7 @@
-import type { CurrentQuestionResponse } from '../api/api-current-question';
-import type { LeaderBoardItem } from '../api/api-leaderboard';
-import type { NextQuestionResponse } from '../api/api-start-question';
-import type { StopQuestionRequest, StopQuestionResponse } from '../api/api-stop-question';
+import type { CurrentQuestionResponse } from '../../api/api-current-question';
+import type { LeaderBoardItem } from '../../api/api-leaderboard';
+import type { NextQuestionResponse } from '../../api/api-start-question';
+import type { StopQuestionRequest, StopQuestionResponse } from '../../api/api-stop-question';
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 

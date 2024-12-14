@@ -1,6 +1,6 @@
 import { Question } from './Question';
 
-const questions: Question[] = [
+const questions: Omit<Question, 'id' | 'index'>[] = [
     {
         title: 'Чо каво?',
         answers: [
@@ -30,13 +30,21 @@ const questions: Question[] = [
     },
 ];
 
+const data: Question[] = questions.map((question, index) => {
+    return {
+        ...question,
+        id: question.title,
+        index,
+    };
+});
+
 export class QuestionsRepository {
     public async getAllQuestions(): Promise<Question[]> {
-        return questions;
+        return data;
     }
 
     public async getQuestion(id: string): Promise<Question> {
-        const question = questions.find(question => question.title === id);
+        const question = data.find(question => question.id === id);
         if (!question) {
             throw new Error(`Question not found: ${id}`);
         }
@@ -45,23 +53,23 @@ export class QuestionsRepository {
 
     public async getNextQuestion(currentQuestionId: string | null): Promise<Question | null> {
         if (!currentQuestionId) {
-            return questions[0];
+            return data[0];
         }
 
-        const currentIndex = questions.findIndex(question => question.title === currentQuestionId);
+        const currentIndex = data.findIndex(question => question.id === currentQuestionId);
         if (currentIndex < 0) {
             return null;
         }
 
-        return questions[currentIndex + 1] ?? null;
+        return data[currentIndex + 1] ?? null;
     }
 
     public async hasNextQuestion(currentQuestionId: string): Promise<boolean> {
-        const currentIndex = questions.findIndex(question => question.title === currentQuestionId);
+        const currentIndex = data.findIndex(question => question.id === currentQuestionId);
         if (currentIndex < 0) {
             return false;
         }
 
-        return questions.length > currentIndex + 1;
+        return data.length > currentIndex + 1;
     }
 }

@@ -33,11 +33,11 @@ export const handler = apiHandler(async () => {
         };
     }
 
-    const hasNextQuestion = await questions.hasNextQuestion(nextQuestion.title);
+    const hasNextQuestion = await questions.hasNextQuestion(nextQuestion.id);
 
     await broadcastQuestionToUsers(nextQuestion);
 
-    await quizState.setCurrentQuestion(nextQuestion.title, 'ON_AIR');
+    await quizState.setCurrentQuestion(nextQuestion.id, 'ON_AIR');
 
     const response: NextQuestionResponse = {
         question: nextQuestion,
@@ -81,5 +81,5 @@ async function sendQuestion(user: User, question: Question) {
         })
     );
 
-    await users.setLastMessageId(user, message.message_id.toString(), question.title);
+    await users.setLastMessageId(user, message.message_id.toString(), question.id);
 }

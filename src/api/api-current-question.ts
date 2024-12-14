@@ -10,6 +10,7 @@ export interface CurrentQuestionResponse {
     state: QuestionState;
     hasNextQuestion: boolean;
     usersCount: number;
+    questionsCount: number;
 }
 
 export const handler = apiHandler(async () => {
@@ -27,6 +28,7 @@ export const handler = apiHandler(async () => {
         state: state.state,
         hasNextQuestion,
         usersCount: allUsers.length,
+        questionsCount: (await questions.getAllQuestions()).length,
     };
 
     return {
