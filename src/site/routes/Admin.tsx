@@ -57,8 +57,8 @@ export function AdminPage() {
 
         update();
 
-        // const interval = setInterval(update, 5000);
-        // return () => clearInterval(interval);
+        const interval = setInterval(update, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     const quizStatus = getQuizStatus(currentQuestion, currentQuestionState, hasNextQuestion, isLoading);
