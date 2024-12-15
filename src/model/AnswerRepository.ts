@@ -33,4 +33,31 @@ export class AnswerRepository {
 
         return answer;
     }
+
+    public async deleteAll(): Promise<void> {
+        const scanResult = await this.db.scan({ TableName: Resource.AnswersTable.name });
+        const items = (scanResult.Items as Answer[] | undefined) || [];
+
+        for (let i = 0; i < items.length; i += 25) {
+            const batch = items.slice(i, i + 25);
+
+            const deleteRequests = {
+                RequestItems: {
+                    [Resource.AnswersTable.name]: batch.map(item => ({
+                        DeleteRequest: {
+                            Key: {
+                                userId: item.userId,
+                                questionId: item.questionId,
+                            },
+                        },
+                    })),
+                },
+            };
+
+            const res = await this.db.batchWrite(deleteRequests);
+            if (Object.keys(res.UnprocessedItems ?? {}).length > 0) {
+                throw new Error('Failed to delete answers');
+            }
+        }
+    }
 }

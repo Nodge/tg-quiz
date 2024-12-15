@@ -111,17 +111,23 @@ export class QuestionsRepository {
             return;
         }
 
-        const res = await this.db.batchWrite({
-            RequestItems: {
-                [Resource.QuestionsTable.name]: itemsToSave.map(item => ({
-                    PutRequest: {
-                        Item: item,
-                    },
-                })),
-            },
-        });
+        for (let i = 0; i < itemsToSave.length; i += 25) {
+            const batch = itemsToSave.slice(i, i + 25);
 
-        console.log(res);
+            const res = await this.db.batchWrite({
+                RequestItems: {
+                    [Resource.QuestionsTable.name]: batch.map(item => ({
+                        PutRequest: {
+                            Item: item,
+                        },
+                    })),
+                },
+            });
+
+            if (Object.keys(res.UnprocessedItems ?? {}).length > 0) {
+                throw new Error('Failed to reorder questions');
+            }
+        }
 
         this.cache = null;
     }

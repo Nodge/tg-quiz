@@ -1,3 +1,4 @@
+import { AnswerRepository } from '../model/AnswerRepository';
 import { Question } from '../model/Question';
 import { QuestionState } from '../model/QuizState';
 import { QiuzStateRepository } from '../model/QuizStateRepository';
@@ -12,6 +13,9 @@ export interface ResetResponse {
 export const handler = apiHandler(async () => {
     const quizState = new QiuzStateRepository();
     await quizState.resetState();
+
+    const answers = new AnswerRepository();
+    await answers.deleteAll();
 
     const response: ResetResponse = {
         question: null,
