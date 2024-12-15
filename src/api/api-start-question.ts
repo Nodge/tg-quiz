@@ -8,6 +8,8 @@ import { QiuzStateRepository } from '../model/QuizStateRepository';
 import { UserRepository } from '../model/UserRepository';
 import { User } from '../model/User';
 import { apiHandler } from '../shared/api-handler';
+import { RateLimitedQueue } from '../shared/rate-limiter';
+import { retry } from '../shared/retry';
 
 export interface NextQuestionResponse {
     question: Question;
@@ -54,11 +56,12 @@ export const handler = apiHandler(async () => {
 async function broadcastQuestionToUsers(question: Question) {
     const users = new UserRepository();
     const allUsers = await users.getAllUsers();
+    const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
     const promises: Promise<void>[] = [];
 
     for (const user of allUsers) {
-        const promise = sendQuestion(user, question);
+        const promise = retry(() => queue.add(() => sendQuestion(user, question)), { maxRetries: 3 });
         promises.push(promise);
     }
 

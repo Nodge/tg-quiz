@@ -5,6 +5,8 @@ import { QiuzStateRepository } from '../model/QuizStateRepository';
 import { User } from '../model/User';
 import { UserRepository } from '../model/UserRepository';
 import { apiHandler } from '../shared/api-handler';
+import { RateLimitedQueue } from '../shared/rate-limiter';
+import { retry } from '../shared/retry';
 
 export interface StopQuestionResponse {
     state: QuestionState;
@@ -55,11 +57,12 @@ export const handler = apiHandler(async event => {
 async function stopCurrentQuestionToUsers(req: StopQuestionRequest, hasNextQuestion: boolean) {
     const users = new UserRepository();
     const allUsers = await users.getAllUsers();
+    const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
     const promises: Promise<void>[] = [];
 
     for (const user of allUsers) {
-        const promise = stopQuestion(req, user, hasNextQuestion);
+        const promise = retry(() => queue.add(() => stopQuestion(req, user, hasNextQuestion)), { maxRetries: 3 });
         promises.push(promise);
     }
 
