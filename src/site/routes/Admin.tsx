@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import type { Question } from '../../model/Question';
 import type { QuestionState } from '../../model/QuizState';
 import { getCurrentQuestion, resetState, startNextQuestion, stopCurrentQuestion } from '../lib/api';
-import { Link } from 'react-router-dom';
 
 enum QuizStatus {
     NOT_STARTED = 'NOT_STARTED',
@@ -24,6 +34,7 @@ export function AdminPage() {
     const [activeUsers, setActiveUsers] = useState(0);
     const [questionsCount, setQuestionsCount] = useState(0);
     const [isLoading, setLoading] = useState(true);
+    const [isResetOpened, setResetOpened] = useState(false);
 
     const start = () => {
         setLoading(true);
@@ -67,7 +78,7 @@ export function AdminPage() {
     const quizStatus = getQuizStatus(currentQuestion, currentQuestionState, hasNextQuestion, isLoading);
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4 flex flex-col gap-y-[20px]">
             <Card className="w-full max-w-4xl mx-auto">
                 <CardHeader>
                     <CardTitle className="text-2xl font-bold">Quiz Admin Panel</CardTitle>
@@ -115,11 +126,13 @@ export function AdminPage() {
 
             {quizStatus === QuizStatus.FINISHED && (
                 <div className="flex justify-center">
-                    <Button variant="link" onClick={reset}>
+                    <Button variant="link" onClick={() => setResetOpened(true)}>
                         Reset state
                     </Button>
                 </div>
             )}
+
+            <ResetAlertDialog isOpen={isResetOpened} onReset={reset} onClose={() => setResetOpened(false)} />
         </div>
     );
 }
@@ -163,4 +176,30 @@ function getQuizStatus(
     }
 
     return QuizStatus.NOT_STARTED;
+}
+
+interface ResetAlertDialogProps {
+    isOpen: boolean;
+    onReset: () => void;
+    onClose: () => void;
+}
+
+function ResetAlertDialog({ isOpen, onReset, onClose }: ResetAlertDialogProps) {
+    return (
+        <AlertDialog open={isOpen} onOpenChange={onClose}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all the scores and answers for all
+                        users.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={onReset}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
 }
