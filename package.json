@@ -1,5 +1,5 @@
 {
-    "name": "sst-app-example",
+    "name": "infra-quiz",
     "version": "0.0.0",
     "private": true,
     "packageManager": "pnpm@9.7.0+sha256.b35018fbfa8f583668b2649e407922a721355cd81f61beeb4ac1d4258e585559",
@@ -12,7 +12,7 @@
         "remove": "sst remove",
         "typecheck": "tsc --noEmit",
         "site:dev": "pnpm vite",
-        "site:build": "vite build"
+        "site:build": "vite build --emptyOutDir"
     },
     "devDependencies": {
         "@aws-sdk/client-dynamodb": "3.712.0",
@@ -22,6 +22,11 @@
         "@dnd-kit/modifiers": "9.0.0",
         "@dnd-kit/sortable": "10.0.0",
         "@dnd-kit/utilities": "3.2.2",
+        "@radix-ui/react-alert-dialog": "1.1.3",
+        "@radix-ui/react-avatar": "1.1.2",
+        "@radix-ui/react-dialog": "1.1.3",
+        "@radix-ui/react-label": "2.1.1",
+        "@radix-ui/react-slot": "1.1.1",
         "@tsconfig/node20": "20.1.4",
         "@types/aws-lambda": "8.10.146",
         "@types/node": "20",
@@ -29,28 +34,21 @@
         "@types/react-dom": "19.0.2",
         "@vitejs/plugin-react": "4.3.4",
         "autoprefixer": "10.4.20",
+        "class-variance-authority": "0.7.1",
+        "clsx": "2.1.1",
         "dotenv": "16.4.7",
+        "lucide-react": "0.468.0",
         "postcss": "8.4.49",
         "prettier": "3.4.2",
         "react": "19.0.0",
         "react-dom": "19.0.0",
         "react-router-dom": "6.28.0",
         "sst": "3.4.3",
+        "tailwind-merge": "2.5.5",
         "tailwindcss": "3.4.16",
+        "tailwindcss-animate": "1.0.7",
         "telegraf": "4.16.3",
         "typescript": "5.7.2",
         "vite": "6.0.3"
-    },
-    "dependencies": {
-        "@radix-ui/react-alert-dialog": "1.1.3",
-        "@radix-ui/react-avatar": "1.1.2",
-        "@radix-ui/react-dialog": "1.1.3",
-        "@radix-ui/react-label": "2.1.1",
-        "@radix-ui/react-slot": "1.1.1",
-        "class-variance-authority": "0.7.1",
-        "clsx": "2.1.1",
-        "lucide-react": "0.468.0",
-        "tailwind-merge": "2.5.5",
-        "tailwindcss-animate": "1.0.7"
     }
 }
