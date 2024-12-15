@@ -124,6 +124,12 @@ export function AdminPage() {
                 </CardContent>
             </Card>
 
+            <div className="flex justify-center">
+                <Button asChild variant="secondary">
+                    <Link to="/hidden-admin/questions">Edit questions</Link>
+                </Button>
+            </div>
+
             {quizStatus === QuizStatus.FINISHED && (
                 <div className="flex justify-center">
                     <Button variant="link" onClick={() => setResetOpened(true)}>

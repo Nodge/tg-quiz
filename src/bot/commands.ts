@@ -101,7 +101,7 @@ export function initCommands(bot: Bot) {
         await answers.createAnswer({
             userId: user.telegramId,
             questionId: question.id,
-            answer: answer.title,
+            answer: answer.id,
             score: answer.score,
         });
         await users.setLastMessageId(user, null, null);

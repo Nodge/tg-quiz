@@ -1,50 +1,40 @@
+import { Resource } from 'sst';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
+
 import { Question } from './Question';
 
-const questions: Omit<Question, 'id' | 'index'>[] = [
-    {
-        title: 'Чо каво?',
-        answers: [
-            { title: 'A (correct)', score: 1 },
-            { title: 'B', score: 0 },
-            { title: 'C', score: 0 },
-            { title: 'D', score: 0 },
-        ],
-    },
-    {
-        title: 'Чо каво 2?',
-        answers: [
-            { title: 'A', score: 0 },
-            { title: 'B (correct)', score: 1 },
-            { title: 'C', score: 0 },
-            { title: 'D', score: 0 },
-        ],
-    },
-    {
-        title: 'Чо каво 3?',
-        answers: [
-            { title: 'A', score: 0 },
-            { title: 'B', score: 0 },
-            { title: 'C (correct)', score: 1 },
-            { title: 'D', score: 0 },
-        ],
-    },
-];
-
-const data: Question[] = questions.map((question, index) => {
-    return {
-        ...question,
-        id: question.title,
-        index,
-    };
-});
-
 export class QuestionsRepository {
+    private db: DynamoDBDocument;
+    private cache: Question[] | null = null;
+
+    public constructor() {
+        const client = new DynamoDBClient();
+        this.db = DynamoDBDocument.from(client);
+    }
+
     public async getAllQuestions(): Promise<Question[]> {
-        return data;
+        if (this.cache) {
+            return this.cache;
+        }
+
+        const res = await this.db.scan({
+            TableName: Resource.QuestionsTable.name,
+        });
+
+        const questions = (res.Items ?? []) as Question[];
+
+        questions.sort((a, b) => {
+            return a.index - b.index;
+        });
+
+        this.cache = questions;
+        return this.cache;
     }
 
     public async getQuestion(id: string): Promise<Question> {
-        const question = data.find(question => question.id === id);
+        const questions = await this.getAllQuestions();
+        const question = questions.find(question => question.id === id);
         if (!question) {
             throw new Error(`Question not found: ${id}`);
         }
@@ -52,24 +42,87 @@ export class QuestionsRepository {
     }
 
     public async getNextQuestion(currentQuestionId: string | null): Promise<Question | null> {
+        const questions = await this.getAllQuestions();
         if (!currentQuestionId) {
-            return data[0];
+            return questions[0] ?? null;
         }
 
-        const currentIndex = data.findIndex(question => question.id === currentQuestionId);
+        const currentIndex = questions.findIndex(question => question.id === currentQuestionId);
         if (currentIndex < 0) {
             return null;
         }
 
-        return data[currentIndex + 1] ?? null;
+        return questions[currentIndex + 1] ?? null;
     }
 
     public async hasNextQuestion(currentQuestionId: string): Promise<boolean> {
-        const currentIndex = data.findIndex(question => question.id === currentQuestionId);
+        const questions = await this.getAllQuestions();
+        const currentIndex = questions.findIndex(question => question.id === currentQuestionId);
         if (currentIndex < 0) {
             return false;
         }
 
-        return data.length > currentIndex + 1;
+        return questions.length > currentIndex + 1;
+    }
+
+    public async saveQuestion(question: Question): Promise<void> {
+        const item = await this.db.get({
+            TableName: Resource.QuestionsTable.name,
+            Key: { id: question.id },
+        });
+        const index = (item.Item as Question | undefined)?.index;
+
+        await this.db.put({
+            TableName: Resource.QuestionsTable.name,
+            Item: {
+                ...question,
+                index: index ?? question.index,
+            },
+        });
+
+        this.cache = null;
+    }
+
+    public async deleteQuestion(question: Question): Promise<void> {
+        await this.db.delete({
+            TableName: Resource.QuestionsTable.name,
+            Key: { id: question.id },
+        });
+
+        this.cache = null;
+    }
+
+    public async saveQuestionsOrder(questions: Question[]): Promise<void> {
+        const savedQuestions = await this.getAllQuestions();
+        const savedQuestionsMap = new Map<string, Question>(savedQuestions.map(item => [item.id, item]));
+        const itemsToSave: Question[] = [];
+
+        for (const item of questions) {
+            const savedItem = savedQuestionsMap.get(item.id);
+            if (savedItem && savedItem.index !== item.index) {
+                itemsToSave.push({
+                    ...savedItem,
+                    index: item.index,
+                });
+            }
+        }
+
+        if (itemsToSave.length === 0) {
+            return;
+        }
+
+        const res = await this.db.batchWrite({
+            RequestItems: {
+                [Resource.QuestionsTable.name]: itemsToSave.map(item => ({
+                    PutRequest: {
+                        Item: item,
+                    },
+                })),
+            },
+        });
+
+        console.log(res);
+
+        this.cache = null;
     }
 }

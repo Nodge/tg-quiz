@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "QuestionsTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "QuizStateTable": {
       "name": string
       "type": "sst.aws.Dynamo"

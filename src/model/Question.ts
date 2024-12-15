@@ -6,6 +6,7 @@ export interface Question {
 }
 
 export interface QuestionAnswer {
+    id: string;
     title: string;
     score: number;
 }

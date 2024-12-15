@@ -5,6 +5,13 @@ export const usersTable = new sst.aws.Dynamo('UsersTable', {
     primaryIndex: { hashKey: 'telegramId' },
 });
 
+export const questionsTable = new sst.aws.Dynamo('QuestionsTable', {
+    fields: {
+        id: 'string',
+    },
+    primaryIndex: { hashKey: 'id' },
+});
+
 export const answersTable = new sst.aws.Dynamo('AnswersTable', {
     fields: {
         userId: 'string',
