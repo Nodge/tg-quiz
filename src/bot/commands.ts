@@ -8,30 +8,30 @@ import { QiuzStateRepository } from '../model/QuizStateRepository';
 
 import { Bot } from './bot';
 import { AnswerRepository } from '../model/AnswerRepository';
+import { Question, QuestionAnswer } from '../model/Question';
+import { Telegram } from 'telegraf';
+import { AvatarsRepository } from '../model/AvatarsRepository';
 
 export function initCommands(bot: Bot) {
     bot.start(async ctx => {
-        const name = ctx.from.first_name;
+        const users = new UserRepository();
 
-        const user: Omit<User, 'createdAt' | 'currentMessageId' | 'currentQuestionId'> = {
-            telegramId: ctx.from.id.toString(),
-            telegramLogin: ctx.from.username ?? ctx.from.first_name,
-            telegramAvatarUrl: null,
-        };
-
-        const photos = await ctx.telegram.getUserProfilePhotos(ctx.from.id);
-        if (photos && photos.total_count > 0) {
-            const fileId = photos.photos[0][0].file_id;
-            const file = await ctx.telegram.getFile(fileId);
-            const url = `https://api.telegram.org/file/bot${Resource.TelegramBotToken.value}/${file.file_path}`;
-            user.telegramAvatarUrl = url;
+        let avatarId: string | null = null;
+        try {
+            avatarId = await uploadAvatar(ctx.from.id, ctx.telegram);
+        } catch (err) {
+            console.warn('Failed to save user avatar', err);
         }
 
-        const users = new UserRepository();
-        await users.createUser(user);
+        await users.createUser({
+            telegramId: ctx.from.id.toString(),
+            telegramLogin: ctx.from.username ?? ctx.from.first_name,
+            avatarId,
+        });
 
         const zoomLink = Resource.ZoomLink.value;
 
+        const name = ctx.from.first_name;
         const message = [
             `${name ?? 'Дружок'}, добро пожаловать в Infra Quiz 2024\\!`,
             '',
@@ -64,7 +64,6 @@ export function initCommands(bot: Bot) {
         const quizState = new QiuzStateRepository();
         const questions = new QuestionsRepository();
         const users = new UserRepository();
-        const answers = new AnswerRepository();
 
         const user = await users.getUser(userId);
         if (!user) {
@@ -92,20 +91,12 @@ export function initCommands(bot: Bot) {
         }
 
         const question = await questions.getQuestion(state.id);
-
         const answer = question.answers[answerIndex];
         if (!answer) {
             throw new Error(`Invalid answer index: ${answerIndex}`);
         }
 
-        await answers.createAnswer({
-            userId: user.telegramId,
-            questionId: question.id,
-            answer: answer.id,
-            score: answer.score,
-        });
-        await users.setLastMessageId(user, null, null);
-
+        await acceptAnswer(user, question, answer);
         await ctx.answerCbQuery('Ответ принят');
 
         const text = ['Вопрос:', question.title, '', 'Ваш ответ:', answer.title].join('\n');
@@ -123,4 +114,41 @@ export function initCommands(bot: Bot) {
         const index = Math.floor(Math.random() * messages.length);
         await ctx.reply(messages[index]);
     });
+}
+
+async function uploadAvatar(userId: number, telegram: Telegram): Promise<string | null> {
+    const photos = await telegram.getUserProfilePhotos(userId);
+    if (!photos || photos.total_count === 0) {
+        return null;
+    }
+
+    const fileId = photos.photos[0][0].file_id;
+    const file = await telegram.getFile(fileId);
+    const url = `https://api.telegram.org/file/bot${Resource.TelegramBotToken.value}/${file.file_path}`;
+
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error('failed to fetch image');
+    }
+
+    const blob = await res.blob();
+
+    const avatars = new AvatarsRepository();
+    const avatarId = await avatars.upload(blob);
+
+    return avatarId;
+}
+
+async function acceptAnswer(user: User, question: Question, answer: QuestionAnswer) {
+    const answers = new AnswerRepository();
+    const users = new UserRepository();
+
+    await answers.createAnswer({
+        userId: user.telegramId,
+        questionId: question.id,
+        answer: answer.id,
+        score: answer.score,
+    });
+
+    await users.setLastMessageId(user, null, null);
 }

@@ -24,6 +24,7 @@ export default $config({
         });
 
         await import('./deploy/db');
+        await import('./deploy/s3');
         const { api } = await import('./deploy/api');
         const { site } = await import('./deploy/site');
         const { botApi } = await import('./deploy/tg-bot');

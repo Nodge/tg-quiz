@@ -14,6 +14,14 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "Avatars": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "AvatarsCDN": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "BotApiRouter": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string

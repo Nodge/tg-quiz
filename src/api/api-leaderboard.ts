@@ -1,5 +1,6 @@
 import { Answer } from '../model/Answer';
 import { AnswerRepository } from '../model/AnswerRepository';
+import { AvatarsRepository } from '../model/AvatarsRepository';
 import { User } from '../model/User';
 import { UserRepository } from '../model/UserRepository';
 import { apiHandler } from '../shared/api-handler';
@@ -14,6 +15,7 @@ export interface LeaderBoardItem {
 export const handler = apiHandler(async () => {
     const users = new UserRepository();
     const answers = new AnswerRepository();
+    const avatars = new AvatarsRepository();
 
     const data: LeaderBoardItem[] = [];
 
@@ -26,7 +28,7 @@ export const handler = apiHandler(async () => {
         data.push({
             userId: user.telegramId,
             name: user.telegramLogin,
-            avatarUrl: user.telegramAvatarUrl,
+            avatarUrl: user.avatarId ? await avatars.getUrl(user.avatarId) : null,
             score: scoreMap.get(user.telegramId) ?? 0,
         });
     }
