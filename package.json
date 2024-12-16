@@ -43,7 +43,7 @@
         "react": "19.0.0",
         "react-dom": "19.0.0",
         "react-router-dom": "6.28.0",
-        "sst": "3.4.3",
+        "sst": "3.4.7",
         "tailwind-merge": "2.5.5",
         "tailwindcss": "3.4.16",
         "tailwindcss-animate": "1.0.7",
