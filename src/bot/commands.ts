@@ -27,6 +27,7 @@ export function initCommands(bot: Bot) {
             telegramId: ctx.from.id.toString(),
             telegramLogin: ctx.from.username ?? ctx.from.first_name,
             avatarId,
+            blocked: false,
         });
 
         const zoomLink = Resource.ZoomLink.value;

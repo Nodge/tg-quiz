@@ -5,4 +5,5 @@ export interface User {
     createdAt: number;
     currentMessageId: string | null;
     currentQuestionId: string | null;
+    blocked: boolean;
 }

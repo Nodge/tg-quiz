@@ -25,6 +25,10 @@ export const handler = apiHandler(async () => {
     const createdAtMap = getRegisterDateMap(usersData);
 
     for (const user of usersData) {
+        if (user.blocked) {
+            continue;
+        }
+
         data.push({
             userId: user.telegramId,
             name: user.telegramLogin,
