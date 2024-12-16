@@ -1,0 +1,19 @@
+{
+    "name": "@quiz/tg-bot",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": {
+            "default": "./src/index.ts"
+        }
+    },
+    "scripts": {},
+    "devDependencies": {
+        "@quiz/shared": "workspace:*",
+        "@quiz/core": "workspace:*",
+        "@tsconfig/node20": "20.1.4",
+        "@types/node": "20.17.10",
+        "telegraf": "4.16.3"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "extends": "@tsconfig/node20/tsconfig.json",
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "noUncheckedIndexedAccess": true,
+        "composite": true,
+        "emitDeclarationOnly": true,
+        "outDir": "./node_modules/.cache/tsbuild",
+        "tsBuildInfoFile": "./node_modules/.cache/ctsbuildinfo"
+    },
+    "include": ["src"]
+}

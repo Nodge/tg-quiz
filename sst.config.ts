@@ -27,12 +27,14 @@ export default $config({
         await import('./deploy/s3');
         const { api } = await import('./deploy/api');
         const { site } = await import('./deploy/site');
+        const { admin } = await import('./deploy/admin');
         const { botApi } = await import('./deploy/tg-bot');
 
         return {
             Region: aws.getRegionOutput().name,
             Api: api.url,
             Site: site.url,
+            Admin: admin.url,
             BotApi: botApi.url,
         };
     },

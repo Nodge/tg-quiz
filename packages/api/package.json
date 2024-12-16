@@ -1,0 +1,19 @@
+{
+    "name": "@quiz/api",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": {
+            "default": "./src/index.ts"
+        }
+    },
+    "scripts": {},
+    "devDependencies": {
+        "@quiz/core": "workspace:*",
+        "@quiz/shared": "workspace:*",
+        "@quiz/tg-bot": "workspace:*",
+        "@tsconfig/node20": "20.1.4",
+        "@types/node": "20.17.10"
+    }
+}

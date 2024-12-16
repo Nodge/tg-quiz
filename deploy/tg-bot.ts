@@ -27,9 +27,9 @@ export const botApi = new sst.aws.ApiGatewayV2('BotApiRouter', {
     cors: false,
 });
 
-const initFn = botApi.route('POST /init', 'src/api/bot-init.handler');
-botApi.route('POST /webhook', 'src/api/bot-webhook.handler');
-botApi.route('GET /health', 'src/api/bot-health.handler');
+const initFn = botApi.route('POST /init', 'packages/tg-bot/src/handlers/init.handler');
+botApi.route('POST /webhook', 'packages/tg-bot/src/handlers/webhook.handler');
+botApi.route('GET /health', 'packages/tg-bot/src/handlers/health.handler');
 
 $resolve({ url: botApi.url, init: initFn.nodes.function.arn }).apply(async ({ url }) => {
     const res = await fetch(`${url}/init`, {
