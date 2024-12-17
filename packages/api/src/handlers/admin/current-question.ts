@@ -23,7 +23,7 @@ export const handler = apiHandler(async () => {
         question,
         state: state.state,
         hasNextQuestion,
-        usersCount: allUsers.length,
+        usersCount: allUsers.filter(user => !user.blocked).length,
         questionsCount: (await questions.getAllQuestions()).length,
     };
 

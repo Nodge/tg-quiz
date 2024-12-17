@@ -24,13 +24,15 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
     cors: true,
 });
 
-api.route('GET /leaderboard', 'packages/api/src/handlers/leaderboard.handler');
+const basePath = 'packages/api/src/handlers';
 
-api.route('GET /admin/current', 'packages/api/src/handlers/current-question.handler');
-api.route('POST /admin/start', 'packages/api/src/handlers/start-question.handler');
-api.route('POST /admin/stop', 'packages/api/src/handlers/stop-question.handler');
-api.route('POST /admin/reset', 'packages/api/src/handlers/reset.handler');
-api.route('GET /admin/questions', 'packages/api/src/handlers/get-questions.handler');
-api.route('POST /admin/questions', 'packages/api/src/handlers/save-question.handler');
-api.route('DELETE /admin/questions', 'packages/api/src/handlers/delete-question.handler');
-api.route('POST /admin/questions/save-order', 'packages/api/src/handlers/save-order.handler');
+api.route('GET /leaderboard', `${basePath}/leaderboard.handler`);
+
+api.route('GET /admin/current', `${basePath}/admin/current-question.handler`);
+api.route('POST /admin/start', `${basePath}/admin/start-question.handler`);
+api.route('POST /admin/stop', `${basePath}/admin/stop-question.handler`);
+api.route('POST /admin/reset', `${basePath}/admin/reset.handler`);
+api.route('GET /admin/questions', `${basePath}/admin/get-questions.handler`);
+api.route('POST /admin/questions', `${basePath}/admin/save-question.handler`);
+api.route('DELETE /admin/questions', `${basePath}/admin/delete-question.handler`);
+api.route('POST /admin/questions/save-order', `${basePath}/admin/save-order.handler`);
