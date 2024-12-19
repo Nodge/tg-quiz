@@ -110,13 +110,7 @@ export function initCommands(bot: Bot) {
     });
 
     bot.hears(/.*/, async ctx => {
-        const messages = [
-            'Ответы текстом не принимаются. Жмякай на кнопки в сообщениях.',
-            'не пиши мне больше, а то по ip вычислю!',
-            'нууу епт, опять ты за свое??',
-        ];
-        const index = Math.floor(Math.random() * messages.length);
-        await ctx.reply(messages[index] ?? '');
+        await ctx.reply('Ответы текстом не принимаются. Жмякай на кнопки в сообщениях.');
     });
 }
 
