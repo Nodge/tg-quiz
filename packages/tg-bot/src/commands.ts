@@ -37,7 +37,7 @@ export function initCommands(bot: Bot) {
 
         const name = ctx.from.first_name;
         const message = [
-            `${name ?? 'Дружок'}, добро пожаловать в Infra Quiz 2024\\!`,
+            `${name ?? 'Дружок'}, добро пожаловать в Infra Quiz\\!`,
             '',
             'Для участия в квизе:',
             `– залетай на [встречу в zoom](${zoomLink})`,

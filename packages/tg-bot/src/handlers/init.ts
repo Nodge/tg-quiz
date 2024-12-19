@@ -17,7 +17,7 @@ export const handler = apiHandler(async event => {
 });
 
 async function updateBotData() {
-    const targetName = 'Infra Quiz 2025';
+    const targetName = 'Infra Quiz';
 
     const { name } = await bot.telegram.getMyName();
     if (name !== targetName) {
