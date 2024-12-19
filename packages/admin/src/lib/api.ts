@@ -11,10 +11,8 @@ import type {
 } from '@quiz/api';
 import { env } from './env';
 
-const API_URL = env('VITE_APP_API_URL');
-
 export async function getCurrentQuestion(): Promise<CurrentQuestionResponse> {
-    const res = await fetch(`${API_URL}/admin/current`, { method: 'GET' });
+    const res = await fetch('/api/admin/current', { method: 'GET' });
     if (!res.ok) {
         throw new Error('Failed to fetch question');
     }
@@ -23,7 +21,7 @@ export async function getCurrentQuestion(): Promise<CurrentQuestionResponse> {
 }
 
 export async function startNextQuestion(): Promise<NextQuestionResponse> {
-    const res = await fetch(`${API_URL}/admin/start`, { method: 'POST' });
+    const res = await fetch('/api/admin/start', { method: 'POST' });
     if (!res.ok) {
         throw new Error('Failed to start question');
     }
@@ -33,10 +31,10 @@ export async function startNextQuestion(): Promise<NextQuestionResponse> {
 
 export async function stopCurrentQuestion(): Promise<StopQuestionResponse> {
     const body: StopQuestionRequest = {
-        siteUrl: env('VITE_APP_SITE_URL') + '/',
+        siteUrl: env('VITE_SITE_URL') + '/',
     };
 
-    const res = await fetch(`${API_URL}/admin/stop`, {
+    const res = await fetch('/api/admin/stop', {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
@@ -53,7 +51,7 @@ export async function stopCurrentQuestion(): Promise<StopQuestionResponse> {
 }
 
 export async function resetState(): Promise<ResetResponse> {
-    const res = await fetch(`${API_URL}/admin/reset`, { method: 'POST' });
+    const res = await fetch('/api/admin/reset', { method: 'POST' });
     if (!res.ok) {
         throw new Error('Failed to reset state');
     }
@@ -62,7 +60,7 @@ export async function resetState(): Promise<ResetResponse> {
 }
 
 export async function getQuestions(): Promise<QuestionsResponse> {
-    const res = await fetch(`${API_URL}/admin/questions`, { method: 'GET' });
+    const res = await fetch('/api/admin/questions', { method: 'GET' });
     if (!res.ok) {
         throw new Error('Failed to get questions');
     }
@@ -75,7 +73,7 @@ export async function saveQuestion(question: SaveQuestionRequest['question']): P
         question,
     };
 
-    const res = await fetch(`${API_URL}/admin/questions`, {
+    const res = await fetch('/api/admin/questions', {
         method: 'POST',
         headers: {
             'content-type': 'application/json',
@@ -92,7 +90,7 @@ export async function deleteQuestion(question: DeleteQuestionRequest['question']
         question,
     };
 
-    const res = await fetch(`${API_URL}/admin/questions`, {
+    const res = await fetch('/api/admin/questions', {
         method: 'DELETE',
         headers: {
             'content-type': 'application/json',
@@ -109,7 +107,7 @@ export async function saveQuestionsOrder(questions: SaveQuestionsOrderRequest['q
         questions,
     };
 
-    const res = await fetch(`${API_URL}/admin/questions/save-order`, {
+    const res = await fetch('/api/admin/questions/save-order', {
         method: 'POST',
         headers: {
             'content-type': 'application/json',

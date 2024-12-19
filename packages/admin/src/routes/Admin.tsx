@@ -118,7 +118,7 @@ export function AdminPage() {
                         </Button>
                     )}
 
-                    <Link to={env('VITE_APP_SITE_URL')} className="block text-center text-blue-500 hover:underline">
+                    <Link to={env('VITE_SITE_URL')} className="block text-center text-blue-500 hover:underline">
                         View Leaderboard
                     </Link>
                 </CardContent>

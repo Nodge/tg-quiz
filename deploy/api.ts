@@ -21,7 +21,7 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
     accessLog: {
         retention: '1 month',
     },
-    cors: true,
+    cors: false,
 });
 
 const basePath = 'packages/api/src/handlers';

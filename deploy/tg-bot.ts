@@ -1,7 +1,7 @@
 import { usersTable, answersTable, quizStateTable, questionsTable } from './db';
 import { avatarsBucket, avatarsCdnUrl } from './s3';
 import { botToken, zoomLink } from './secrets';
-import { site } from './site';
+import { siteUrl } from './site';
 
 const region = aws.getRegionOutput().name;
 
@@ -14,7 +14,7 @@ export const botApi = new sst.aws.ApiGatewayV2('BotApiRouter', {
                     S3_REGION_NAME: region,
                     TELEGRAM_BOT_TOKEN: botToken.value,
                     APP_STAGE: $app.stage,
-                    SITE_URL: site.url,
+                    SITE_URL: siteUrl,
                     AVATARS_CDN_URL: avatarsCdnUrl,
                     AVATARS_BUCKET_NAME: avatarsBucket.name,
                 },

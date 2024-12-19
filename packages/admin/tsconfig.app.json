@@ -28,6 +28,6 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["vite-env.d.ts", "src"],
+    "include": ["src"],
     "references": [{ "path": "../api" }]
 }
