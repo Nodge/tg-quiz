@@ -5,7 +5,7 @@ import {
     User,
     UserRepository,
     QuestionsRepository,
-    QiuzStateRepository,
+    QuizStateRepository,
     AnswerRepository,
     Question,
     QuestionAnswer,
@@ -65,7 +65,7 @@ export function initCommands(bot: Bot) {
             throw new Error('No message id in reply');
         }
 
-        const quizState = new QiuzStateRepository();
+        const quizState = new QuizStateRepository();
         const questions = new QuestionsRepository();
         const users = new UserRepository();
 

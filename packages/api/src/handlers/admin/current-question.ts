@@ -1,4 +1,4 @@
-import { Question, QuestionsRepository, QuestionState, QiuzStateRepository, UserRepository } from '@quiz/core';
+import { Question, QuestionsRepository, QuestionState, QuizStateRepository, UserRepository } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
 
 export interface CurrentQuestionResponse {
@@ -10,7 +10,7 @@ export interface CurrentQuestionResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const quizState = new QiuzStateRepository();
+    const quizState = new QuizStateRepository();
     const questions = new QuestionsRepository();
     const users = new UserRepository();
 

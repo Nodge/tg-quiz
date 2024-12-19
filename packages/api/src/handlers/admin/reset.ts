@@ -1,4 +1,4 @@
-import { AnswerRepository, Question, QuestionState, QiuzStateRepository } from '@quiz/core';
+import { AnswerRepository, Question, QuestionState, QuizStateRepository } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
 
 export interface ResetResponse {
@@ -8,7 +8,7 @@ export interface ResetResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const quizState = new QiuzStateRepository();
+    const quizState = new QuizStateRepository();
     await quizState.resetState();
 
     const answers = new AnswerRepository();

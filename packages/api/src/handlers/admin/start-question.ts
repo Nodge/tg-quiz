@@ -1,4 +1,4 @@
-import { Question, QuestionsRepository, QuestionState, QiuzStateRepository, User, UserRepository } from '@quiz/core';
+import { Question, QuestionsRepository, QuestionState, QuizStateRepository, User, UserRepository } from '@quiz/core';
 import { apiHandler, RateLimitedQueue, retry } from '@quiz/shared';
 import { bot, Markup } from '@quiz/tg-bot';
 
@@ -9,7 +9,7 @@ export interface NextQuestionResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const quizState = new QiuzStateRepository();
+    const quizState = new QuizStateRepository();
     const questions = new QuestionsRepository();
 
     const { id, state } = await quizState.getCurrentQuestion();

@@ -6,7 +6,7 @@ import { QuestionState, QuizState } from '../models/QuizState';
 
 const STATE_ID = '2025';
 
-export class QiuzStateRepository {
+export class QuizStateRepository {
     private db: DynamoDBDocument;
 
     public constructor() {

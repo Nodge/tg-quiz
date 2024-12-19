@@ -6,5 +6,5 @@ export type { User } from './models/User';
 export { AnswerRepository } from './repositories/AnswerRepository';
 export { AvatarsRepository } from './repositories/AvatarsRepository';
 export { QuestionsRepository } from './repositories/QuestionsRepository';
-export { QiuzStateRepository } from './repositories/QuizStateRepository';
+export { QuizStateRepository as QuizStateRepository } from './repositories/QuizStateRepository';
 export { UserRepository } from './repositories/UserRepository';
