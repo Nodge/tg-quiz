@@ -53,7 +53,11 @@ async function broadcastQuestionToUsers(question: Question) {
 
     for (const user of allUsers) {
         const promise = retry(() => queue.add(() => sendQuestion(user, question)), { maxRetries: 3 });
-        promises.push(promise);
+        promises.push(
+            promise.catch(err => {
+                console.error(new Error(`Failed to start question for user ${user.telegramId}`, { cause: err }));
+            })
+        );
     }
 
     await Promise.all(promises);

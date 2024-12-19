@@ -57,7 +57,11 @@ async function stopCurrentQuestionToUsers(req: StopQuestionRequest, hasNextQuest
 
     for (const user of allUsers) {
         const promise = retry(() => queue.add(() => stopQuestion(req, user, hasNextQuestion)), { maxRetries: 3 });
-        promises.push(promise);
+        promises.push(
+            promise.catch(err => {
+                console.error(new Error(`Failed to stop question for user ${user.telegramId}`, { cause: err }));
+            })
+        );
     }
 
     await Promise.all(promises);
