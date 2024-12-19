@@ -2,7 +2,8 @@ import { Resource } from 'sst';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
-import { QuestionState, QuizState } from '../models/QuizState';
+import { QuestionState, QuizState, QuizStatus } from '../models/QuizState';
+import { QuestionsRepository } from './QuestionsRepository';
 
 const STATE_ID = '2025';
 
@@ -12,6 +13,27 @@ export class QuizStateRepository {
     public constructor() {
         const client = new DynamoDBClient();
         this.db = DynamoDBDocument.from(client);
+    }
+
+    public async getQuizStatus(): Promise<QuizStatus> {
+        const currentQuestion = await this.getCurrentQuestion();
+
+        if (!currentQuestion.id) {
+            return 'NOT_STARTED';
+        }
+
+        if (currentQuestion.state === 'ON_AIR') {
+            return 'IN_PROGRESS';
+        }
+
+        const questions = new QuestionsRepository();
+        const hasNextQuestion = await questions.hasNextQuestion(currentQuestion.id);
+
+        if (hasNextQuestion) {
+            return 'IN_PROGRESS';
+        }
+
+        return 'FINISHED';
     }
 
     public async getCurrentQuestion(): Promise<{ id: string | null; state: QuestionState }> {

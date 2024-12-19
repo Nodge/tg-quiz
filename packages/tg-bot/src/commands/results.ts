@@ -1,4 +1,4 @@
-import { Answer, AnswerRepository, Question, QuestionsRepository } from '@quiz/core';
+import { Answer, AnswerRepository, Question, QuestionsRepository, QuizStateRepository } from '@quiz/core';
 import { retry } from '@quiz/shared';
 
 import { Bot } from '../bot';
@@ -8,8 +8,15 @@ const MESSAGE_LENGTH_LIMIT = 4096;
 
 export function registerResultsCommand(bot: Bot) {
     bot.command('results', async ctx => {
+        const quisState = new QuizStateRepository();
         const questions = new QuestionsRepository();
         const answers = new AnswerRepository();
+
+        const status = await quisState.getQuizStatus();
+        if (status !== 'FINISHED') {
+            await ctx.reply('Результаты недоступны');
+            return;
+        }
 
         const allQuestions = await questions.getAllQuestions();
         const allAnswers = await answers.getUserAnswers(ctx.from.id.toString());
