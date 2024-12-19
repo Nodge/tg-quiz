@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
 import { Question } from '../models/Question';
+import { paginate } from '../lib/paginate';
 
 export class QuestionsRepository {
     private db: DynamoDBDocument;
@@ -18,11 +19,12 @@ export class QuestionsRepository {
             return this.cache;
         }
 
-        const res = await this.db.scan({
-            TableName: Resource.QuestionsTable.name,
-        });
-
-        const questions = (res.Items ?? []) as Question[];
+        const questions = (await paginate(key =>
+            this.db.scan({
+                TableName: Resource.QuestionsTable.name,
+                ExclusiveStartKey: key,
+            })
+        )) as Question[];
 
         questions.sort((a, b) => {
             return a.index - b.index;

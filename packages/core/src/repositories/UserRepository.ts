@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
 import { User } from '../models/User';
+import { paginate } from '../lib/paginate';
 
 export class UserRepository {
     private db: DynamoDBDocument;
@@ -40,11 +41,14 @@ export class UserRepository {
     }
 
     public async getAllUsers(): Promise<User[]> {
-        const result = await this.db.scan({
-            TableName: Resource.UsersTable.name,
-        });
+        const users = await paginate(key =>
+            this.db.scan({
+                TableName: Resource.UsersTable.name,
+                ExclusiveStartKey: key,
+            })
+        );
 
-        return (result.Items ?? []) as User[];
+        return users as User[];
     }
 
     public async getUser(telegramId: string): Promise<User | null> {

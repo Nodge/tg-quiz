@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-import { env } from '../env';
+import { env } from '../lib/env';
 
 const cdnUrl = env('AVATARS_CDN_URL');
 const bucketName = env('AVATARS_BUCKET_NAME');
