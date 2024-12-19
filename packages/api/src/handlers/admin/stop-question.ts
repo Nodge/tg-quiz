@@ -91,9 +91,12 @@ async function stopQuestion(req: StopQuestionRequest, user: User, hasNextQuestio
 }
 
 async function sendFinalMessage(req: StopQuestionRequest, user: User) {
-    const message = ['Infra Quiz завершен\\. Спасибо за участие\\!', '', `[Результаты квиза](${req.siteUrl})`].join(
-        '\n'
-    );
+    const message = [
+        '🎉 Infra Quiz завершен\\. Спасибо за участие\\! 🎉',
+        '',
+        `🔢 Ваши результаты: /results`,
+        `🏆 Общий зачет: [leaderboard](${req.siteUrl})`,
+    ].join('\n');
 
     await bot.telegram.sendMessage(user.telegramId, message, {
         parse_mode: 'MarkdownV2',

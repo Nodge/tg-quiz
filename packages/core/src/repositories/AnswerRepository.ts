@@ -20,6 +20,27 @@ export class AnswerRepository {
         return (res.Items ?? []) as Answer[];
     }
 
+    public async getUserAnswers(userId: string): Promise<Answer[]> {
+        const items: Answer[] = [];
+        let lastKey: Record<string, unknown> | undefined = undefined;
+
+        do {
+            const res = await this.db.query({
+                TableName: Resource.AnswersTable.name,
+                KeyConditionExpression: 'userId = :userId',
+                ExpressionAttributeValues: {
+                    ':userId': userId,
+                },
+                ExclusiveStartKey: lastKey,
+            });
+
+            items.push(...res.Items);
+            lastKey = res.LastEvaluatedKey;
+        } while (lastKey);
+
+        return items;
+    }
+
     public async createAnswer(input: Omit<Answer, 'createdAt'>): Promise<Answer> {
         const answer: Answer = {
             ...input,
