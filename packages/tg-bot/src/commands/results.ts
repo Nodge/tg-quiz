@@ -1,10 +1,11 @@
 import { Answer, AnswerRepository, Question, QuestionsRepository, QuizStateRepository } from '@quiz/core';
 import { retry } from '@quiz/shared';
 
+import { escapeHTML } from '../lib/escape-html';
+import { sendMessageByChunks } from '../lib/send-message-by-chunks';
+
 import { Bot } from '../bot';
 import { env } from '../env';
-
-const MESSAGE_LENGTH_LIMIT = 4096;
 
 export function registerResultsCommand(bot: Bot) {
     bot.command('results', async ctx => {
@@ -24,7 +25,7 @@ export function registerResultsCommand(bot: Bot) {
 
         const message = formatMessage(allQuestions, answerMap);
 
-        await splitChunks(message, '\n', async chunk => {
+        await sendMessageByChunks(message, '\n', async chunk => {
             await retry(() => ctx.reply(chunk, { parse_mode: 'HTML' }), { maxRetries: 3 });
         });
     });
@@ -117,42 +118,4 @@ function formatFooter(answers: Answer[]): string {
     ];
 
     return message.join('\n');
-}
-
-function escapeHTML(html: string): string {
-    const escapeMap: Record<string, string> = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-    };
-
-    return html.replace(/[&<>"']/g, char => escapeMap[char] ?? '');
-}
-
-async function splitChunks(messageChunks: string[], joinWith: string, send: (chunk: string) => Promise<void>) {
-    const chunks: string[][] = [];
-    let currentChunk: string[] = [];
-    let currentLength = 0;
-
-    for (const message of messageChunks) {
-        if (currentLength + message.length > MESSAGE_LENGTH_LIMIT && currentChunk.length > 0) {
-            chunks.push(currentChunk);
-            currentChunk = [];
-            currentLength = 0;
-        }
-
-        currentChunk.push(message);
-        currentLength += message.length;
-        currentLength += joinWith.length;
-    }
-
-    if (currentChunk.length > 0) {
-        chunks.push(currentChunk);
-    }
-
-    for (const chunk of chunks) {
-        await send(chunk.join(joinWith));
-    }
 }

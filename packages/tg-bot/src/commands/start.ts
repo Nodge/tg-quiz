@@ -2,6 +2,8 @@ import { Resource } from 'sst';
 
 import { UserRepository, AvatarsRepository } from '@quiz/core';
 
+import { escapeHTML } from '../lib/escape-html';
+
 import { env } from '../env';
 import { Bot } from '../bot';
 
@@ -27,19 +29,19 @@ export function registerStartCommand(bot: Bot) {
 
         const name = ctx.from.first_name;
         const message = [
-            `${name ?? 'Дружок'}, добро пожаловать в Infra Quiz\\!`,
+            `${escapeHTML(name) ?? 'Дружок'}, добро пожаловать в Infra Quiz!`,
             '',
             'Для участия в квизе:',
-            `– залетай на [встречу в zoom](${zoomLink})`,
+            `– залетай на <a href="${zoomLink}">встречу в zoom</a>`,
             '– слушай интересные истории и получай задания от ведущего',
             '– отвечай на вопросы через этот чат, нажимая на кнопку с правильным ответом',
-            '– побеждай и получай новогоднюю ачивку на staff\\!',
+            '– побеждай и получай новогоднюю ачивку на staff!',
             '',
-            `[За результатами можно следить здесь](${env('SITE_URL')})`,
+            `<a href="${env('SITE_URL')}">За результатами можно следить здесь</a>`,
         ].join('\n');
 
         await ctx.reply(message, {
-            parse_mode: 'MarkdownV2',
+            parse_mode: 'HTML',
             // @ts-expect-error Опция не описана в типах библиотеки
             disable_web_page_preview: true,
         });
