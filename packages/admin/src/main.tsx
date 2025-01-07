@@ -10,7 +10,7 @@ import './main.css';
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/admin">
             <Routes>
                 <Route path="/" element={<AdminPage />} />
                 <Route path="/questions" element={<QuestionsPage />} />

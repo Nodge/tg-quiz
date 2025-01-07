@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "Auth": {
+      "type": "sst.aws.Auth"
+      "url": string
+    }
     "Avatars": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -28,6 +32,15 @@ declare module "sst" {
     }
     "BotApiRouter": {
       "type": "sst.aws.ApiGatewayV2"
+      "url": string
+    }
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
+    }
+    "MainRouter": {
+      "type": "sst.aws.Router"
       "url": string
     }
     "QuestionsTable": {

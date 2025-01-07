@@ -1,5 +1,5 @@
 {
-    "name": "@quiz/api",
+    "name": "@quiz/auth",
     "version": "0.0.0",
     "private": true,
     "type": "module",
@@ -10,12 +10,11 @@
     },
     "scripts": {},
     "devDependencies": {
-        "@quiz/auth": "workspace:*",
-        "@quiz/core": "workspace:*",
-        "@quiz/shared": "workspace:*",
-        "@quiz/tg-bot": "workspace:*",
+        "@aws-sdk/client-sesv2": "3.723.0",
+        "@openauthjs/openauth": "0.2.4",
         "@tsconfig/node20": "20.1.4",
         "@types/node": "20.17.10",
-        "cookie-es": "1.2.2"
+        "hono": "4.6.14",
+        "valibot": "1.0.0-beta.9"
     }
 }

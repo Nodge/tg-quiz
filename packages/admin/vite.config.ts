@@ -6,6 +6,7 @@ import tailwindcss from 'tailwindcss';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/admin',
     build: {
         outDir: 'build',
     },

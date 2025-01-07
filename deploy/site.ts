@@ -1,6 +1,6 @@
-import { api } from './api';
+import { domainName } from './domain';
 
-const site = new sst.aws.StaticSite('Site', {
+export const site = new sst.aws.StaticSite('Site', {
     path: 'packages/site',
     build: {
         command: 'pnpm build',
@@ -11,24 +11,7 @@ const site = new sst.aws.StaticSite('Site', {
         url: 'http://localhost:5173/',
     },
     environment: {
-        API_URL: api.url,
+        NODE_ENV: $dev ? 'development' : 'production',
+        API_URL: `https://${domainName}/api/`,
     },
 });
-
-let siteUrl = site.url;
-
-if (!$dev) {
-    const router = new sst.aws.Router('SiteRouter', {
-        routes: {
-            '/api/*': {
-                url: api.url,
-                rewrite: { regex: '^/api/(.*)$', to: '/$1' },
-            },
-            '/*': site.url,
-        },
-    });
-
-    siteUrl = router.url;
-}
-
-export { siteUrl };

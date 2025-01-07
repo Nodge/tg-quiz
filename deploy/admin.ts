@@ -1,7 +1,6 @@
-import { api } from './api';
-import { siteUrl } from './site';
+import { domainName } from './domain';
 
-const admin = new sst.aws.StaticSite('Admin', {
+export const admin = new sst.aws.StaticSite('Admin', {
     path: 'packages/admin',
     build: {
         command: 'pnpm build',
@@ -12,19 +11,8 @@ const admin = new sst.aws.StaticSite('Admin', {
         url: 'http://localhost:8080/',
     },
     environment: {
-        API_URL: api.url,
-        VITE_SITE_URL: siteUrl,
+        NODE_ENV: $dev ? 'development' : 'production',
+        API_URL: `https://${domainName}/api/`,
+        VITE_SITE_URL: $dev ? 'http://localhost:5173/' : `https://${domainName}/`,
     },
 });
-
-if (!$dev) {
-    new sst.aws.Router('AdminRouter', {
-        routes: {
-            '/api/*': {
-                url: api.url,
-                rewrite: { regex: '^/api/(.*)$', to: '/$1' },
-            },
-            '/*': admin.url,
-        },
-    });
-}

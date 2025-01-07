@@ -3,6 +3,7 @@
 /* eslint-disable */
 /// <reference types="vite/client" />
 interface ImportMetaEnv {
+  readonly NODE_ENV: string
   readonly API_URL: string
   readonly VITE_SITE_URL: string
 }

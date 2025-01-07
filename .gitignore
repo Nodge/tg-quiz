@@ -13,6 +13,7 @@ node_modules
 
 # local env files
 .env*
+mise.local.toml
 
 # site bundle
 build

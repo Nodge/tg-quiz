@@ -1,0 +1,44 @@
+import { apiHandler } from '@quiz/shared';
+
+import { exchangeCode, getCallbackUrl, getRedirectUrl, setTokens } from '../../lib/auth';
+
+export const handler = apiHandler(async event => {
+    const code = event.queryStringParameters?.['code'];
+    const error = event.queryStringParameters?.['error'];
+    const redirectUrl = getRedirectUrl(event);
+    const callbackUrl = getCallbackUrl(event);
+
+    if (!redirectUrl || !callbackUrl) {
+        return {
+            statusCode: 400,
+        };
+    }
+
+    const redirect = {
+        statusCode: 307,
+        headers: {
+            location: redirectUrl,
+        },
+    };
+
+    if (error) {
+        console.warn(`Authentication failed: ${error}`);
+        return redirect;
+    }
+
+    if (!code) {
+        console.warn('No authorization code in query string');
+        return redirect;
+    }
+
+    const tokens = await exchangeCode(code, callbackUrl);
+    if (!tokens) {
+        console.warn('Failed to exchange code to access token');
+        return redirect;
+    }
+
+    return {
+        ...redirect,
+        cookies: setTokens(tokens),
+    };
+});

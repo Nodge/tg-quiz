@@ -1,4 +1,8 @@
-import type { Context, APIGatewayProxyEvent, APIGatewayProxyResultV2 } from 'aws-lambda';
+import type { Context, APIGatewayProxyEvent as Event, APIGatewayProxyResultV2 } from 'aws-lambda';
+
+export interface APIGatewayProxyEvent extends Event {
+    cookies?: string[];
+}
 
 export type ApiHandler = (evt: APIGatewayProxyEvent, context: Context) => Promise<APIGatewayProxyResultV2>;
 
