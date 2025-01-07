@@ -1,5 +1,5 @@
 import { apiHandler } from '@quiz/shared';
-import { getAuthrizeUrl, getCallbackUrl, getRedirectUrl, setTokens, tryAuth } from '../../lib/auth';
+import { authService, getCallbackUrl, getRedirectUrl, setTokens, tryAuth } from '../../lib/auth';
 
 export const handler = apiHandler(async event => {
     const redirectUrl = getRedirectUrl(event);
@@ -18,11 +18,11 @@ export const handler = apiHandler(async event => {
             headers: {
                 location: redirectUrl,
             },
-            cookies: setTokens(auth.tokens),
+            cookies: auth.session ? setTokens(auth.session) : undefined,
         };
     }
 
-    const authUrl = await getAuthrizeUrl(callbackUrl);
+    const authUrl = await authService.getAuthUrl(callbackUrl);
 
     return {
         statusCode: 307,

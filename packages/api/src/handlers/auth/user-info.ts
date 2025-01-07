@@ -24,8 +24,8 @@ export const handler = apiHandler(async event => {
         statusCode: 200,
         body: JSON.stringify({
             isAuthenticated: true,
-            userId: auth.user.userId,
+            userId: auth.userId,
         } satisfies UserInfoResponse),
-        cookies: setTokens(auth.tokens),
+        cookies: auth.session ? setTokens(auth.session) : undefined,
     };
 });

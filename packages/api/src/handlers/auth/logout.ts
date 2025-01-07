@@ -1,11 +1,9 @@
-import { apiHandler } from '@quiz/shared';
-import { deleteTokens, validateOrigin } from '../../lib/auth';
+import { APIGatewayProxyEvent, apiHandler } from '@quiz/shared';
+import { deleteTokens } from '../../lib/auth';
+import { getApiBaseUrl } from '../../lib/base-url';
 
 export const handler = apiHandler(async event => {
-    const origin = event.headers.origin;
-
-    // Validate the origin to protect against CSRF attacks.
-    if (!origin || !validateOrigin(origin)) {
+    if (!csrtCheck(event)) {
         return {
             statusCode: 400,
         };
@@ -16,3 +14,17 @@ export const handler = apiHandler(async event => {
         cookies: deleteTokens(),
     };
 });
+
+function csrtCheck(event: APIGatewayProxyEvent): boolean {
+    const origin = event.headers.origin;
+    if (!origin) {
+        return false;
+    }
+
+    if (!URL.canParse(origin)) {
+        return false;
+    }
+
+    const apiUrl = new URL(getApiBaseUrl());
+    return apiUrl.origin === origin;
+}

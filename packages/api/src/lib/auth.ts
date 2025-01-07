@@ -1,34 +1,16 @@
 import { serialize, parse } from 'cookie-es';
 import { APIGatewayProxyEvent } from '@quiz/shared';
-import { createAuthClient, authSubjects } from '@quiz/auth';
+import { AuthService, AuthSession } from '@quiz/auth';
 
 import { env } from './env';
+import { getApiBaseUrl } from './base-url';
 
-const client = createAuthClient({
-    clientID: 'web',
-    issuer: env('AUTH_SERVER_URL'),
+export const authService = new AuthService({
+    clientId: 'web',
+    authServerUrl: env('AUTH_SERVER_URL'),
 });
 
-export async function getAuthrizeUrl(redirectUrl: string) {
-    const { url } = await client.authorize(redirectUrl, 'code');
-    return url;
-}
-
-export async function exchangeCode(code: string, redirectUrl: string) {
-    const exchanged = await client.exchange(code, redirectUrl);
-    if (exchanged.err) {
-        return false;
-    }
-
-    return exchanged.tokens;
-}
-
-interface Tokens {
-    access: string;
-    refresh: string;
-}
-
-export function setTokens(tokens: Tokens | undefined) {
+export function setTokens(tokens: AuthSession) {
     const cookie: string[] = [];
 
     if (!tokens) {
@@ -88,21 +70,21 @@ export async function tryAuth(event: APIGatewayProxyEvent) {
     const accessToken = cookies['access_token'];
     const refreshToken = cookies['refresh_token'];
 
-    if (!accessToken) {
+    if (!accessToken || !refreshToken) {
         return false;
     }
 
-    const verified = await client.verify(authSubjects, accessToken, {
-        refresh: refreshToken,
-    });
+    const verified = await authService.validateSession({ access: accessToken, refresh: refreshToken });
 
-    if (verified.err) {
+    if (!verified.isValid) {
         return false;
     }
 
+    // todo: return User DTO
+    // todo: update cookies transparently
     return {
-        user: verified.subject.properties,
-        tokens: verified.tokens,
+        userId: verified.userId,
+        session: verified.updatedSession,
     };
 }
 
@@ -132,17 +114,7 @@ export function getCallbackUrl(event: APIGatewayProxyEvent) {
     return callbackUrl.toString();
 }
 
-function getApiBaseUrl() {
-    let baseUrl = env('API_URL');
-
-    if (env('APP_ENV') === 'development') {
-        baseUrl = 'http://localhost:8080/api/';
-    }
-
-    return baseUrl;
-}
-
-export function validateOrigin(url: string): boolean {
+function validateOrigin(url: string): boolean {
     if (!URL.canParse(url)) {
         return false;
     }
