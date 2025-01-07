@@ -1,4 +1,11 @@
-import { Question, QuestionsRepository, QuestionState, QuizStateRepository, User, UserRepository } from '@quiz/core';
+import {
+    Question,
+    QuestionsRepository,
+    QuestionState,
+    QuizStateRepository,
+    Player,
+    PlayerRepository,
+} from '@quiz/core';
 import { apiHandler, RateLimitedQueue, retry } from '@quiz/shared';
 import { bot, Markup } from '@quiz/tg-bot';
 
@@ -28,7 +35,7 @@ export const handler = apiHandler(async () => {
 
     const hasNextQuestion = await questions.hasNextQuestion(nextQuestion.id);
 
-    await broadcastQuestionToUsers(nextQuestion);
+    await broadcastQuestionToPlayers(nextQuestion);
 
     await quizState.setCurrentQuestion(nextQuestion.id, 'ON_AIR');
 
@@ -44,18 +51,18 @@ export const handler = apiHandler(async () => {
     };
 });
 
-async function broadcastQuestionToUsers(question: Question) {
-    const users = new UserRepository();
-    const allUsers = await users.getAllUsers();
+async function broadcastQuestionToPlayers(question: Question) {
+    const players = new PlayerRepository();
+    const allPlayers = await players.getAllUsers();
     const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
     const promises: Promise<void>[] = [];
 
-    for (const user of allUsers) {
-        const promise = retry(() => queue.add(() => sendQuestion(user, question)), { maxRetries: 3 });
+    for (const player of allPlayers) {
+        const promise = retry(() => queue.add(() => sendQuestion(player, question)), { maxRetries: 3 });
         promises.push(
             promise.catch(err => {
-                console.error(new Error(`Failed to start question for user ${user.telegramId}`, { cause: err }));
+                console.error(new Error(`Failed to start question for player ${player.telegramId}`, { cause: err }));
             })
         );
     }
@@ -63,8 +70,8 @@ async function broadcastQuestionToUsers(question: Question) {
     await Promise.all(promises);
 }
 
-async function sendQuestion(user: User, question: Question) {
-    const users = new UserRepository();
+async function sendQuestion(player: Player, question: Question) {
+    const players = new PlayerRepository();
 
     const text = ['Вопрос:', question.title, '', 'Варианты ответов:'].join('\n');
     const answers = question.answers.map((answer, index) => {
@@ -72,12 +79,12 @@ async function sendQuestion(user: User, question: Question) {
     });
 
     const message = await bot.telegram.sendMessage(
-        user.telegramId,
+        player.telegramId,
         text,
         Markup.inlineKeyboard(answers, {
             columns: 1,
         })
     );
 
-    await users.setLastMessageId(user, message.message_id.toString(), question.id);
+    await players.setLastMessageId(player, message.message_id.toString(), question.id);
 }

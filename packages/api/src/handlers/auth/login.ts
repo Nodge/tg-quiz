@@ -1,5 +1,8 @@
 import { apiHandler } from '@quiz/shared';
 import { authService, authSession, getCallbackUrl, getRedirectUrl, tryAuth } from '../../lib/auth';
+import { initDeps } from '../../lib/di';
+
+initDeps();
 
 export const handler = apiHandler(async event => {
     const redirectUrl = getRedirectUrl(event);

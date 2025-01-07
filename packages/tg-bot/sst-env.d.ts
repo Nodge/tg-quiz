@@ -59,6 +59,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "UserAccountsTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "UsersTable": {
       "name": string
       "type": "sst.aws.Dynamo"

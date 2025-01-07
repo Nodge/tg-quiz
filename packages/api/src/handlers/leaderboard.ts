@@ -1,4 +1,4 @@
-import { Answer, AnswerRepository, AvatarsRepository, User, UserRepository } from '@quiz/core';
+import { Answer, AnswerRepository, AvatarsRepository, Player, PlayerRepository } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
 
 export interface LeaderBoardItem {
@@ -11,27 +11,27 @@ export interface LeaderBoardItem {
 export type LeaderBoardResponse = LeaderBoardItem[];
 
 export const handler = apiHandler(async () => {
-    const users = new UserRepository();
+    const players = new PlayerRepository();
     const answers = new AnswerRepository();
     const avatars = new AvatarsRepository();
 
     const data: LeaderBoardResponse = [];
 
-    const usersData = await users.getAllUsers();
+    const allPlayers = await players.getAllUsers();
     const answersData = await answers.getAllAnswers();
     const scoreMap = getScoreMap(answersData);
-    const createdAtMap = getRegisterDateMap(usersData);
+    const createdAtMap = getRegisterDateMap(allPlayers);
 
-    for (const user of usersData) {
-        if (user.blocked) {
+    for (const player of allPlayers) {
+        if (player.blocked) {
             continue;
         }
 
         data.push({
-            userId: user.telegramId,
-            name: user.telegramLogin,
-            avatarUrl: user.avatarId ? await avatars.getUrl(user.avatarId) : null,
-            score: scoreMap.get(user.telegramId) ?? 0,
+            userId: player.telegramId,
+            name: player.telegramLogin,
+            avatarUrl: player.avatarId ? await avatars.getUrl(player.avatarId) : null,
+            score: scoreMap.get(player.telegramId) ?? 0,
         });
     }
 
@@ -65,10 +65,10 @@ function getScoreMap(answers: Answer[]) {
     return map;
 }
 
-function getRegisterDateMap(users: User[]) {
+function getRegisterDateMap(players: Player[]) {
     const map = new Map<string, number>();
 
-    for (const item of users) {
+    for (const item of players) {
         map.set(item.telegramId, item.createdAt);
     }
 

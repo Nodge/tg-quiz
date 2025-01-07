@@ -1,4 +1,17 @@
-export const usersTable = new sst.aws.Dynamo('UsersTable', {
+export const usersTable = new sst.aws.Dynamo('UserAccountsTable', {
+    fields: {
+        id: 'string',
+        email: 'string',
+    },
+    primaryIndex: { hashKey: 'id' },
+    globalIndexes: {
+        email: {
+            hashKey: 'email',
+        },
+    },
+});
+
+export const playersTable = new sst.aws.Dynamo('UsersTable', {
     fields: {
         telegramId: 'string',
     },

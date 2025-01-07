@@ -7,8 +7,14 @@
         "composite": true,
         "emitDeclarationOnly": true,
         "outDir": "./node_modules/.cache/tsbuild",
-        "tsBuildInfoFile": "./node_modules/.cache/ctsbuildinfo"
+        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
     },
     "include": ["../../sst-env.d.ts", "src"],
-    "references": [{ "path": "../shared" }, { "path": "../core" }, { "path": "../tg-bot" }]
+    "references": [
+        { "path": "../shared" },
+        { "path": "../core" },
+        { "path": "../tg-bot" },
+        { "path": "../auth" },
+        { "path": "../infra" }
+    ]
 }

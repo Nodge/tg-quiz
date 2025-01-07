@@ -1,4 +1,4 @@
-import { QuestionsRepository, QuestionState, QuizStateRepository, User, UserRepository } from '@quiz/core';
+import { QuestionsRepository, QuestionState, QuizStateRepository, Player, PlayerRepository } from '@quiz/core';
 import { apiHandler, RateLimitedQueue, retry } from '@quiz/shared';
 import { bot } from '@quiz/tg-bot';
 
@@ -34,7 +34,7 @@ export const handler = apiHandler(async event => {
     }
 
     const hasNextQuestion = await questions.hasNextQuestion(id);
-    await stopCurrentQuestionToUsers(req, hasNextQuestion);
+    await stopCurrentQuestionToPlayers(req, hasNextQuestion);
 
     await quizState.setCurrentQuestion(id, 'STOPPED');
 
@@ -48,18 +48,18 @@ export const handler = apiHandler(async event => {
     };
 });
 
-async function stopCurrentQuestionToUsers(req: StopQuestionRequest, hasNextQuestion: boolean) {
-    const users = new UserRepository();
-    const allUsers = await users.getAllUsers();
+async function stopCurrentQuestionToPlayers(req: StopQuestionRequest, hasNextQuestion: boolean) {
+    const players = new PlayerRepository();
+    const allPlayers = await players.getAllUsers();
     const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
     const promises: Promise<void>[] = [];
 
-    for (const user of allUsers) {
-        const promise = retry(() => queue.add(() => stopQuestion(req, user, hasNextQuestion)), { maxRetries: 3 });
+    for (const player of allPlayers) {
+        const promise = retry(() => queue.add(() => stopQuestion(req, player, hasNextQuestion)), { maxRetries: 3 });
         promises.push(
             promise.catch(err => {
-                console.error(new Error(`Failed to stop question for user ${user.telegramId}`, { cause: err }));
+                console.error(new Error(`Failed to stop question for player ${player.telegramId}`, { cause: err }));
             })
         );
     }
@@ -67,30 +67,30 @@ async function stopCurrentQuestionToUsers(req: StopQuestionRequest, hasNextQuest
     await Promise.all(promises);
 }
 
-async function stopQuestion(req: StopQuestionRequest, user: User, hasNextQuestion: boolean) {
-    const users = new UserRepository();
+async function stopQuestion(req: StopQuestionRequest, player: Player, hasNextQuestion: boolean) {
+    const players = new PlayerRepository();
     const questions = new QuestionsRepository();
 
-    if (user.currentMessageId) {
-        await bot.telegram.editMessageReplyMarkup(user.telegramId, Number(user.currentMessageId), undefined, {
+    if (player.currentMessageId) {
+        await bot.telegram.editMessageReplyMarkup(player.telegramId, Number(player.currentMessageId), undefined, {
             inline_keyboard: [],
         });
 
-        if (user.currentQuestionId) {
-            const question = await questions.getQuestion(user.currentQuestionId);
+        if (player.currentQuestionId) {
+            const question = await questions.getQuestion(player.currentQuestionId);
             const text = ['Вопрос:', question.title, '', 'Ваш ответ:', '—'].join('\n');
-            await bot.telegram.editMessageText(user.telegramId, Number(user.currentMessageId), undefined, text);
+            await bot.telegram.editMessageText(player.telegramId, Number(player.currentMessageId), undefined, text);
         }
     }
 
-    await users.setLastMessageId(user, null, null);
+    await players.setLastMessageId(player, null, null);
 
     if (!hasNextQuestion) {
-        await sendFinalMessage(req, user);
+        await sendFinalMessage(req, player);
     }
 }
 
-async function sendFinalMessage(req: StopQuestionRequest, user: User) {
+async function sendFinalMessage(req: StopQuestionRequest, player: Player) {
     const message = [
         '🎉 Infra Quiz завершен\\. Спасибо за участие\\! 🎉',
         '',
@@ -98,7 +98,7 @@ async function sendFinalMessage(req: StopQuestionRequest, user: User) {
         `🏆 Общий зачет: [leaderboard](${req.siteUrl})`,
     ].join('\n');
 
-    await bot.telegram.sendMessage(user.telegramId, message, {
+    await bot.telegram.sendMessage(player.telegramId, message, {
         parse_mode: 'MarkdownV2',
         // @ts-expect-error Опция не описана в типах библиотеки
         disable_web_page_preview: true,

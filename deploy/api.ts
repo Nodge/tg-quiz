@@ -1,4 +1,4 @@
-import { usersTable, answersTable, quizStateTable, questionsTable } from './db';
+import { usersTable, playersTable, answersTable, quizStateTable, questionsTable } from './db';
 import { domainName } from './domain';
 import { avatarsBucket, avatarsCdnUrl } from './s3';
 import { botToken } from './secrets';
@@ -9,7 +9,7 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
     transform: {
         route: {
             handler: {
-                link: [botToken, usersTable, questionsTable, answersTable, quizStateTable],
+                link: [botToken, usersTable, playersTable, questionsTable, answersTable, quizStateTable],
                 environment: {
                     NODE_ENV: $dev ? 'development' : 'production',
                     APP_ENV: $dev ? 'development' : 'production',

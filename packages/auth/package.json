@@ -10,6 +10,7 @@
     },
     "scripts": {},
     "devDependencies": {
+        "@quiz/infra": "workspace:*",
         "@aws-sdk/client-sesv2": "3.723.0",
         "@openauthjs/openauth": "0.2.4",
         "@tsconfig/node20": "20.1.4",

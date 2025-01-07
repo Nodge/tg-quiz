@@ -12,6 +12,7 @@
     "devDependencies": {
         "@quiz/auth": "workspace:*",
         "@quiz/core": "workspace:*",
+        "@quiz/infra": "workspace:*",
         "@quiz/shared": "workspace:*",
         "@quiz/tg-bot": "workspace:*",
         "@tsconfig/node20": "20.1.4",

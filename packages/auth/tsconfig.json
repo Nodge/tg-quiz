@@ -7,8 +7,8 @@
         "composite": true,
         "emitDeclarationOnly": true,
         "outDir": "./node_modules/.cache/tsbuild",
-        "tsBuildInfoFile": "./node_modules/.cache/ctsbuildinfo"
+        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
     },
     "include": ["../../sst-env.d.ts", "src"],
-    "references": []
+    "references": [{ "path": "../infra" }]
 }

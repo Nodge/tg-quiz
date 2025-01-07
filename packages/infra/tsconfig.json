@@ -9,5 +9,6 @@
         "outDir": "./node_modules/.cache/tsbuild",
         "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo"
     },
-    "include": ["../../sst-env.d.ts", "src"]
+    "include": ["../../sst-env.d.ts", "src"],
+    "references": [{ "path": "../core" }]
 }

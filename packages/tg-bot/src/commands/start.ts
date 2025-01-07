@@ -1,6 +1,6 @@
 import { Resource } from 'sst';
 
-import { UserRepository, AvatarsRepository } from '@quiz/core';
+import { PlayerRepository, AvatarsRepository } from '@quiz/core';
 
 import { escapeHTML } from '../lib/escape-html';
 
@@ -9,7 +9,7 @@ import { Bot } from '../bot';
 
 export function registerStartCommand(bot: Bot) {
     bot.start(async ctx => {
-        const users = new UserRepository();
+        const players = new PlayerRepository();
 
         let avatarId: string | null = null;
         try {
@@ -18,7 +18,7 @@ export function registerStartCommand(bot: Bot) {
             console.warn('Failed to save user avatar', err);
         }
 
-        await users.createUser({
+        await players.createUser({
             telegramId: ctx.from.id.toString(),
             telegramLogin: ctx.from.username ?? ctx.from.first_name,
             avatarId,

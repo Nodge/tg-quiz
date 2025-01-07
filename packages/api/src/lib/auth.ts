@@ -1,4 +1,5 @@
-import { APIGatewayProxyEvent } from '@quiz/shared';
+import { APIGatewayProxyEvent, inject } from '@quiz/shared';
+import { usersRepositoryToken } from '@quiz/core';
 import { AuthService, AuthSession } from '@quiz/auth';
 
 import { env } from './env';
@@ -13,7 +14,7 @@ export const authService = new AuthService({
 export const authSession = createSessionCookie<AuthSession>({
     name: 'auth',
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: 'strict',
     secure: true,
     path: '/',
     maxAge: 34560000,
@@ -30,10 +31,14 @@ export async function tryAuth(event: APIGatewayProxyEvent) {
         return false;
     }
 
-    // todo: return User DTO
-    // todo: update cookies transparently
+    const usersRepository = inject(usersRepositoryToken);
+    const user = await usersRepository.findById(verified.userId);
+    if (!user) {
+        return false;
+    }
+
     return {
-        userId: verified.userId,
+        user,
         session: verified.updatedSession,
     };
 }

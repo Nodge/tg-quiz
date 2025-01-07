@@ -1,4 +1,4 @@
-import { Question, QuestionsRepository, QuestionState, QuizStateRepository, UserRepository } from '@quiz/core';
+import { Question, QuestionsRepository, QuestionState, QuizStateRepository, PlayerRepository } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
 
 export interface CurrentQuestionResponse {
@@ -12,18 +12,18 @@ export interface CurrentQuestionResponse {
 export const handler = apiHandler(async () => {
     const quizState = new QuizStateRepository();
     const questions = new QuestionsRepository();
-    const users = new UserRepository();
+    const players = new PlayerRepository();
 
     const state = await quizState.getCurrentQuestion();
     const question = state.id ? await questions.getQuestion(state.id) : null;
     const hasNextQuestion = state.id ? await questions.hasNextQuestion(state.id) : true;
-    const allUsers = await users.getAllUsers();
+    const allPlayers = await players.getAllUsers();
 
     const data: CurrentQuestionResponse = {
         question,
         state: state.state,
         hasNextQuestion,
-        usersCount: allUsers.filter(user => !user.blocked).length,
+        usersCount: allPlayers.filter(user => !user.blocked).length,
         questionsCount: (await questions.getAllQuestions()).length,
     };
 

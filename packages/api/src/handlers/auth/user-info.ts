@@ -1,5 +1,8 @@
 import { apiHandler } from '@quiz/shared';
 import { authSession, tryAuth } from '../../lib/auth';
+import { initDeps } from '../../lib/di';
+
+initDeps();
 
 export type UserInfoResponse =
     | {
@@ -8,6 +11,7 @@ export type UserInfoResponse =
     | {
           isAuthenticated: true;
           userId: string;
+          role: string;
       };
 
 export const handler = apiHandler(async event => {
@@ -24,7 +28,8 @@ export const handler = apiHandler(async event => {
         statusCode: 200,
         body: JSON.stringify({
             isAuthenticated: true,
-            userId: auth.userId,
+            userId: auth.user.id,
+            role: auth.user.role,
         } satisfies UserInfoResponse),
         cookies: auth.session ? await authSession.commitSession(auth.session) : undefined,
     };

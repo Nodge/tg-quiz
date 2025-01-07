@@ -1,3 +1,4 @@
+import { usersTable } from './db';
 import { domainName, dns } from './domain';
 import { email } from './email';
 
@@ -10,7 +11,7 @@ export const auth = new sst.aws.Auth('Auth', {
             APP_ENV: $dev ? 'development' : 'production',
             APP_DOMAIN: domainName,
         },
-        link: [email],
+        link: [email, usersTable],
     },
     domain: {
         name: `auth.${domainName}`,

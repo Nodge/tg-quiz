@@ -1,4 +1,4 @@
-import { usersTable, answersTable, quizStateTable, questionsTable } from './db';
+import { playersTable, answersTable, quizStateTable, questionsTable } from './db';
 import { domainName } from './domain';
 import { avatarsBucket, avatarsCdnUrl } from './s3';
 import { botToken, zoomLink } from './secrets';
@@ -9,7 +9,7 @@ export const botApi = new sst.aws.ApiGatewayV2('BotApiRouter', {
     transform: {
         route: {
             handler: {
-                link: [botToken, zoomLink, usersTable, questionsTable, answersTable, quizStateTable, avatarsBucket],
+                link: [botToken, zoomLink, playersTable, questionsTable, answersTable, quizStateTable, avatarsBucket],
                 environment: {
                     NODE_ENV: $dev ? 'development' : 'production',
                     S3_REGION_NAME: region,
