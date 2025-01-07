@@ -1,5 +1,5 @@
 import { apiHandler } from '@quiz/shared';
-import { setTokens, tryAuth } from '../../lib/auth';
+import { authSession, tryAuth } from '../../lib/auth';
 
 export type UserInfoResponse =
     | {
@@ -26,6 +26,6 @@ export const handler = apiHandler(async event => {
             isAuthenticated: true,
             userId: auth.userId,
         } satisfies UserInfoResponse),
-        cookies: auth.session ? setTokens(auth.session) : undefined,
+        cookies: auth.session ? await authSession.commitSession(auth.session) : undefined,
     };
 });

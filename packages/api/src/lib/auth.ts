@@ -1,81 +1,31 @@
-import { serialize, parse } from 'cookie-es';
 import { APIGatewayProxyEvent } from '@quiz/shared';
 import { AuthService, AuthSession } from '@quiz/auth';
 
 import { env } from './env';
 import { getApiBaseUrl } from './base-url';
+import { createSessionCookie } from './session';
 
 export const authService = new AuthService({
     clientId: 'web',
     authServerUrl: env('AUTH_SERVER_URL'),
 });
 
-export function setTokens(tokens: AuthSession) {
-    const cookie: string[] = [];
-
-    if (!tokens) {
-        return cookie;
-    }
-
-    cookie.push(
-        serialize('access_token', tokens.access, {
-            httpOnly: true,
-            sameSite: 'none',
-            secure: true,
-            path: '/',
-            maxAge: 34560000,
-        })
-    );
-
-    cookie.push(
-        serialize('refresh_token', tokens.refresh, {
-            httpOnly: true,
-            sameSite: 'none',
-            secure: true,
-            path: '/',
-            maxAge: 34560000,
-        })
-    );
-
-    return cookie;
-}
-
-export function deleteTokens() {
-    const cookie: string[] = [];
-    cookie.push(
-        serialize('access_token', '', {
-            httpOnly: true,
-            sameSite: 'none',
-            secure: true,
-            path: '/',
-            expires: new Date(0),
-        })
-    );
-
-    cookie.push(
-        serialize('refresh_token', '', {
-            httpOnly: true,
-            sameSite: 'none',
-            secure: true,
-            path: '/',
-            expires: new Date(0),
-        })
-    );
-
-    return cookie;
-}
+export const authSession = createSessionCookie<AuthSession>({
+    name: 'auth',
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+    path: '/',
+    maxAge: 34560000,
+});
 
 export async function tryAuth(event: APIGatewayProxyEvent) {
-    const cookies = parse(event.cookies?.join(';') ?? '');
-    const accessToken = cookies['access_token'];
-    const refreshToken = cookies['refresh_token'];
-
-    if (!accessToken || !refreshToken) {
+    const session = await authSession.getSession(event.cookies?.join(';') ?? '');
+    if (!session) {
         return false;
     }
 
-    const verified = await authService.validateSession({ access: accessToken, refresh: refreshToken });
-
+    const verified = await authService.validateSession(session);
     if (!verified.isValid) {
         return false;
     }

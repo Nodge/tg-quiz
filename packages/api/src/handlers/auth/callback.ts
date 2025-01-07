@@ -1,6 +1,6 @@
 import { apiHandler } from '@quiz/shared';
 
-import { authService, getCallbackUrl, getRedirectUrl, setTokens } from '../../lib/auth';
+import { authService, authSession, getCallbackUrl, getRedirectUrl } from '../../lib/auth';
 
 export const handler = apiHandler(async event => {
     const code = event.queryStringParameters?.['code'];
@@ -31,14 +31,14 @@ export const handler = apiHandler(async event => {
         return redirect;
     }
 
-    const authSession = await authService.createSession(code, callbackUrl);
-    if (!authSession) {
+    const session = await authService.createSession(code, callbackUrl);
+    if (!session) {
         console.warn('Failed to exchange code to access token');
         return redirect;
     }
 
     return {
         ...redirect,
-        cookies: setTokens(authSession),
+        cookies: await authSession.commitSession(session),
     };
 });

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, apiHandler } from '@quiz/shared';
-import { deleteTokens } from '../../lib/auth';
+import { authSession } from '../../lib/auth';
 import { getApiBaseUrl } from '../../lib/base-url';
 
 export const handler = apiHandler(async event => {
@@ -11,7 +11,7 @@ export const handler = apiHandler(async event => {
 
     return {
         statusCode: 201,
-        cookies: deleteTokens(),
+        cookies: await authSession.destroySession(),
     };
 });
 
