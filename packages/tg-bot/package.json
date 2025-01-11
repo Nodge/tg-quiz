@@ -12,6 +12,7 @@
     "devDependencies": {
         "@quiz/shared": "workspace:*",
         "@quiz/core": "workspace:*",
+        "@quiz/infra": "workspace:*",
         "@tsconfig/node20": "20.1.4",
         "@types/node": "20.17.10",
         "telegraf": "4.16.3"

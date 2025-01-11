@@ -1,12 +1,16 @@
-import { Question, QuestionsRepository } from '@quiz/core';
+import { type Question, QuestionsService } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
+
+import { init } from '../../init';
+
+init();
 
 export interface QuestionsResponse {
     questions: Question[];
 }
 
 export const handler = apiHandler(async () => {
-    const questions = new QuestionsRepository();
+    const questions = new QuestionsService();
 
     const data: QuestionsResponse = {
         questions: await questions.getAllQuestions(),

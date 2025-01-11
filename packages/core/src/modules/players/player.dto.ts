@@ -1,4 +1,4 @@
-export interface User {
+export interface Player {
     telegramId: string;
     telegramLogin: string;
     avatarId: string | null;

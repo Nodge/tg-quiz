@@ -1,8 +1,8 @@
 import { apiHandler } from '@quiz/shared';
 import { authSession, tryAuth } from '../../lib/auth';
-import { initDeps } from '../../lib/di';
+import { init } from '../../init';
 
-initDeps();
+init();
 
 export type UserInfoResponse =
     | {

@@ -1,18 +1,21 @@
 import crypto from 'node:crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { FileStorageRepository, type UploadedFile } from '@quiz/core';
 
 import { env } from '../lib/env';
 
-export class AvatarsRepository {
+export class S3FileStorageRepository extends FileStorageRepository {
     private s3: S3Client;
 
     constructor() {
+        super();
+
         this.s3 = new S3Client({
             region: env('S3_REGION_NAME'),
         });
     }
 
-    public async upload(file: Blob): Promise<string> {
+    public async upload(file: Blob): Promise<UploadedFile> {
         const key = `i/${crypto.randomUUID()}`;
 
         const command = new PutObjectCommand({
@@ -24,10 +27,20 @@ export class AvatarsRepository {
 
         await this.s3.send(command);
 
-        return key;
+        return {
+            id: key,
+            url: this.getUrl(key),
+        };
     }
 
-    public async getUrl(avatarId: string): Promise<string> {
+    public async findById(id: string): Promise<UploadedFile | null> {
+        return {
+            id,
+            url: this.getUrl(id),
+        };
+    }
+
+    private getUrl(avatarId: string): string {
         const cdnUrl = env('AVATARS_CDN_URL');
 
         return new URL(avatarId, cdnUrl).toString();

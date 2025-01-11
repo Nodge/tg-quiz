@@ -1,5 +1,9 @@
-import { Question, QuestionsRepository } from '@quiz/core';
+import { type Question, QuestionsService } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
+
+import { init } from '../../init';
+
+init();
 
 export interface SaveQuestionRequest {
     question: Question;
@@ -15,9 +19,9 @@ export const handler = apiHandler(async event => {
     }
 
     const req = JSON.parse(body) as SaveQuestionRequest;
-    const questions = new QuestionsRepository();
+    const questions = new QuestionsService();
 
-    await questions.saveQuestion(req.question);
+    await questions.update(req.question);
 
     return {
         statusCode: 201,

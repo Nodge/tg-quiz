@@ -1,5 +1,9 @@
-import { Question, QuestionsRepository } from '@quiz/core';
+import { Question, QuestionsService } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
+
+import { init } from '../../init';
+
+init();
 
 export interface DeleteQuestionRequest {
     question: Question;
@@ -15,9 +19,9 @@ export const handler = apiHandler(async event => {
     }
 
     const req = JSON.parse(body) as DeleteQuestionRequest;
-    const questions = new QuestionsRepository();
+    const questions = new QuestionsService();
 
-    await questions.deleteQuestion(req.question);
+    await questions.delete(req.question);
 
     return {
         statusCode: 201,

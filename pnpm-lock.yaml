@@ -264,6 +264,9 @@ importers:
       '@quiz/core':
         specifier: workspace:*
         version: link:../core
+      '@quiz/infra':
+        specifier: workspace:*
+        version: link:../infra
       '@quiz/shared':
         specifier: workspace:*
         version: link:../shared

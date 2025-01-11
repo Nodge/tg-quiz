@@ -1,10 +1,10 @@
-import { UsersRepository } from '@quiz/infra';
+import { DynamoDBUsersRepository } from '@quiz/infra';
 
 class UsersService {
-    private users: UsersRepository;
+    private users: DynamoDBUsersRepository;
 
     constructor() {
-        this.users = new UsersRepository();
+        this.users = new DynamoDBUsersRepository();
     }
 
     public async createByEmail(email: string): Promise<string> {

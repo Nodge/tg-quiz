@@ -1,5 +1,9 @@
-import { Question, QuestionsRepository } from '@quiz/core';
+import { type Question, QuestionsService } from '@quiz/core';
 import { apiHandler } from '@quiz/shared';
+
+import { init } from '../../init';
+
+init();
 
 export interface SaveQuestionsOrderRequest {
     questions: Question[];
@@ -16,7 +20,7 @@ export const handler = apiHandler(async event => {
 
     const req = JSON.parse(body) as SaveQuestionsOrderRequest;
 
-    const questions = new QuestionsRepository();
+    const questions = new QuestionsService();
     await questions.saveQuestionsOrder(req.questions);
 
     return {

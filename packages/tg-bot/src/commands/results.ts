@@ -1,4 +1,4 @@
-import { Answer, AnswerRepository, Question, QuestionsRepository, QuizStateRepository } from '@quiz/core';
+import { type Answer, AnswersService, type Question, QuestionsService, QuizStateService } from '@quiz/core';
 import { retry } from '@quiz/shared';
 
 import { escapeHTML } from '../lib/escape-html';
@@ -8,11 +8,11 @@ import { Bot } from '../bot';
 import { env } from '../env';
 
 export function registerResultsCommand(bot: Bot) {
-    bot.command('results', async ctx => {
-        const quisState = new QuizStateRepository();
-        const questions = new QuestionsRepository();
-        const answers = new AnswerRepository();
+    const quisState = new QuizStateService();
+    const questions = new QuestionsService();
+    const answers = new AnswersService();
 
+    bot.command('results', async ctx => {
         const status = await quisState.getQuizStatus();
         if (status !== 'FINISHED') {
             await ctx.reply('Результаты недоступны');

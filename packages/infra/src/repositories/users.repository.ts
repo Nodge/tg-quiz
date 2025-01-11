@@ -1,13 +1,13 @@
-import { UsersRepository as BaseUsersRepository, type User, type UserRegistrationData } from '@quiz/core';
-import { db } from '../db';
 import { Resource } from 'sst';
+import { UsersRepository, type User, type UserRegistrationData } from '@quiz/core';
+import { db } from '../db';
 
-const TableName = Resource.UserAccountsTable.name;
+export class DynamoDBUsersRepository extends UsersRepository {
+    private tableName = Resource.UserAccountsTable.name;
 
-export class UsersRepository extends BaseUsersRepository {
     public async findById(id: string) {
         const res = await db.get({
-            TableName,
+            TableName: this.tableName,
             Key: { id },
         });
 
@@ -20,7 +20,7 @@ export class UsersRepository extends BaseUsersRepository {
 
     public async findByEmail(email: string) {
         const res = await db.query({
-            TableName,
+            TableName: this.tableName,
             IndexName: 'email',
             KeyConditions: {
                 email: { ComparisonOperator: 'EQ', AttributeValueList: [email] },
@@ -44,7 +44,7 @@ export class UsersRepository extends BaseUsersRepository {
         };
 
         await db.put({
-            TableName,
+            TableName: this.tableName,
             Item: user,
         });
 

@@ -1,13 +1,17 @@
 import {
-    Question,
-    QuestionsRepository,
-    QuestionState,
-    QuizStateRepository,
-    Player,
-    PlayerRepository,
+    type Question,
+    QuestionsService,
+    type QuestionState,
+    QuizStateService,
+    type Player,
+    PlayersService,
 } from '@quiz/core';
 import { apiHandler, RateLimitedQueue, retry } from '@quiz/shared';
 import { bot, Markup } from '@quiz/tg-bot';
+
+import { init } from '../../init';
+
+init();
 
 export interface NextQuestionResponse {
     question: Question;
@@ -16,8 +20,8 @@ export interface NextQuestionResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const quizState = new QuizStateRepository();
-    const questions = new QuestionsRepository();
+    const quizState = new QuizStateService();
+    const questions = new QuestionsService();
 
     const { id, state } = await quizState.getCurrentQuestion();
     const nextQuestion = await questions.getNextQuestion(id);
@@ -52,8 +56,8 @@ export const handler = apiHandler(async () => {
 });
 
 async function broadcastQuestionToPlayers(question: Question) {
-    const players = new PlayerRepository();
-    const allPlayers = await players.getAllUsers();
+    const players = new PlayersService();
+    const allPlayers = await players.getAllPlayers();
     const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
     const promises: Promise<void>[] = [];
@@ -71,7 +75,7 @@ async function broadcastQuestionToPlayers(question: Question) {
 }
 
 async function sendQuestion(player: Player, question: Question) {
-    const players = new PlayerRepository();
+    const players = new PlayersService();
 
     const text = ['Вопрос:', question.title, '', 'Варианты ответов:'].join('\n');
     const answers = question.answers.map((answer, index) => {

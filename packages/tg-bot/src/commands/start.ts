@@ -1,6 +1,6 @@
 import { Resource } from 'sst';
 
-import { PlayerRepository, AvatarsRepository } from '@quiz/core';
+import { PlayersService } from '@quiz/core';
 
 import { escapeHTML } from '../lib/escape-html';
 
@@ -8,17 +8,17 @@ import { env } from '../env';
 import { Bot } from '../bot';
 
 export function registerStartCommand(bot: Bot) {
-    bot.start(async ctx => {
-        const players = new PlayerRepository();
+    const players = new PlayersService();
 
+    bot.start(async ctx => {
         let avatarId: string | null = null;
         try {
-            avatarId = await uploadAvatar(ctx.from.id);
+            avatarId = await uploadAvatar(players, ctx.from.id);
         } catch (err) {
             console.warn('Failed to save user avatar', err);
         }
 
-        await players.createUser({
+        await players.createOrUpdate({
             telegramId: ctx.from.id.toString(),
             telegramLogin: ctx.from.username ?? ctx.from.first_name,
             avatarId,
@@ -47,7 +47,7 @@ export function registerStartCommand(bot: Bot) {
         });
     });
 
-    async function uploadAvatar(userId: number): Promise<string | null> {
+    async function uploadAvatar(players: PlayersService, userId: number): Promise<string | null> {
         const photos = await bot.telegram.getUserProfilePhotos(userId);
         if (!photos || photos.total_count === 0) {
             return null;
@@ -67,10 +67,8 @@ export function registerStartCommand(bot: Bot) {
         }
 
         const blob = await res.blob();
+        const avatar = await players.uploadAvatar(blob);
 
-        const avatars = new AvatarsRepository();
-        const avatarId = await avatars.upload(blob);
-
-        return avatarId;
+        return avatar.id;
     }
 }

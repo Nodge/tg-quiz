@@ -1,21 +1,22 @@
 import {
-    Player,
-    PlayerRepository,
-    QuestionsRepository,
-    QuizStateRepository,
-    AnswerRepository,
-    Question,
-    QuestionAnswer,
+    type Player,
+    type Question,
+    type QuestionAnswer,
+    PlayersService,
+    QuestionsService,
+    QuizStateService,
+    AnswersService,
 } from '@quiz/core';
 
 import { Bot } from '../bot';
 
 export function registerAnswerHandler(bot: Bot) {
-    bot.action(/^answer_(\d+)$/, async ctx => {
-        const quizState = new QuizStateRepository();
-        const questions = new QuestionsRepository();
-        const players = new PlayerRepository();
+    const quizState = new QuizStateService();
+    const questions = new QuestionsService();
+    const players = new PlayersService();
+    const answers = new AnswersService();
 
+    bot.action(/^answer_(\d+)$/, async ctx => {
         const userId = ctx.from.id.toString();
         const messageId = ctx.update.callback_query.message?.message_id.toString();
         const id = ctx.match[1];
@@ -25,7 +26,7 @@ export function registerAnswerHandler(bot: Bot) {
             throw new Error('No message id in reply');
         }
 
-        const player = await players.getUser(userId);
+        const player = await players.getById(userId);
         if (!player) {
             console.warn(`Unknown user: ${userId}`);
             return;
@@ -66,16 +67,13 @@ export function registerAnswerHandler(bot: Bot) {
     });
 
     async function acceptAnswer(player: Player, question: Question, answer: QuestionAnswer) {
-        const answers = new AnswerRepository();
-        const users = new PlayerRepository();
-
-        await answers.createAnswer({
+        await answers.create({
             userId: player.telegramId,
             questionId: question.id,
             answer: answer.id,
             score: answer.score,
         });
 
-        await users.setLastMessageId(player, null, null);
+        await players.setLastMessageId(player, null, null);
     }
 }

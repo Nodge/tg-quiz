@@ -1,6 +1,10 @@
-import { QuestionsRepository, QuestionState, QuizStateRepository, Player, PlayerRepository } from '@quiz/core';
+import { QuestionsService, type QuestionState, QuizStateService, type Player, PlayersService } from '@quiz/core';
 import { apiHandler, RateLimitedQueue, retry } from '@quiz/shared';
 import { bot } from '@quiz/tg-bot';
+
+import { init } from '../../init';
+
+init();
 
 export interface StopQuestionResponse {
     state: QuestionState;
@@ -21,8 +25,8 @@ export const handler = apiHandler(async event => {
 
     const req = JSON.parse(body) as StopQuestionRequest;
 
-    const quizState = new QuizStateRepository();
-    const questions = new QuestionsRepository();
+    const quizState = new QuizStateService();
+    const questions = new QuestionsService();
 
     const { id, state } = await quizState.getCurrentQuestion();
     if (!id) {
@@ -49,8 +53,8 @@ export const handler = apiHandler(async event => {
 });
 
 async function stopCurrentQuestionToPlayers(req: StopQuestionRequest, hasNextQuestion: boolean) {
-    const players = new PlayerRepository();
-    const allPlayers = await players.getAllUsers();
+    const players = new PlayersService();
+    const allPlayers = await players.getAllPlayers();
     const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
     const promises: Promise<void>[] = [];
@@ -68,8 +72,8 @@ async function stopCurrentQuestionToPlayers(req: StopQuestionRequest, hasNextQue
 }
 
 async function stopQuestion(req: StopQuestionRequest, player: Player, hasNextQuestion: boolean) {
-    const players = new PlayerRepository();
-    const questions = new QuestionsRepository();
+    const players = new PlayersService();
+    const questions = new QuestionsService();
 
     if (player.currentMessageId) {
         await bot.telegram.editMessageReplyMarkup(player.telegramId, Number(player.currentMessageId), undefined, {
