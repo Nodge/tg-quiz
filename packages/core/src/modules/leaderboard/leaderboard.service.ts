@@ -1,5 +1,5 @@
-import { type Player, PlayersService } from '../players';
-import { type Answer, AnswersService } from '../answers';
+import type { Player, PlayersService } from '../players';
+import type { Answer, AnswersService } from '../answers';
 
 import { Leaderboard } from './leaderboard.dto';
 
@@ -7,9 +7,9 @@ export class LeaderboardService {
     private players: PlayersService;
     private answers: AnswersService;
 
-    public constructor() {
-        this.players = new PlayersService();
-        this.answers = new AnswersService();
+    public constructor(players: PlayersService, answers: AnswersService) {
+        this.players = players;
+        this.answers = answers;
     }
 
     public async getLeaderboard(): Promise<Leaderboard> {

@@ -1,6 +1,6 @@
 import { apiHandler } from '@quiz/shared';
 import { authService, authSession, getCallbackUrl, getRedirectUrl, tryAuth } from '../../lib/auth';
-import { init } from '../../init';
+import { init } from '../../di';
 
 init();
 

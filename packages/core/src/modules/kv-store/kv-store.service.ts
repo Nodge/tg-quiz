@@ -1,24 +1,21 @@
-import { inject } from '@quiz/shared';
-import { keyValueStoreRepositoryToken, KeyValueStoreRepository } from './kv-store.repository';
+import type { KeyValueStoreRepository } from './kv-store.repository';
 
-export class KeyValueStore<T> {
-    private key: string;
+export class KeyValueStore {
     private store: KeyValueStoreRepository;
 
-    public constructor(key: string) {
-        this.key = key;
-        this.store = inject(keyValueStoreRepositoryToken);
+    public constructor(store: KeyValueStoreRepository) {
+        this.store = store;
     }
 
-    public set(value: T) {
-        return this.store.set(this.key, value);
+    public set<T>(key: string, value: T) {
+        return this.store.set(key, value);
     }
 
-    public get() {
-        return this.store.get(this.key) as Promise<T | undefined>;
+    public get<T>(key: string) {
+        return this.store.get(key) as Promise<T | undefined>;
     }
 
-    public delete() {
-        return this.store.delete(this.key);
+    public delete(key: string) {
+        return this.store.delete(key);
     }
 }

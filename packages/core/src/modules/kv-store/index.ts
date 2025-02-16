@@ -1,2 +1,2 @@
 export { KeyValueStore } from './kv-store.service';
-export { KeyValueStoreRepository, keyValueStoreRepositoryToken } from './kv-store.repository';
+export { KeyValueStoreRepository } from './kv-store.repository';

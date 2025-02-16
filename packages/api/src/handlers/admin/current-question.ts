@@ -1,7 +1,7 @@
-import { type Question, QuestionsService, type QuestionState, QuizStateService, PlayersService } from '@quiz/core';
-import { apiHandler } from '@quiz/shared';
+import type { Question, QuestionState } from '@quiz/core';
+import { apiHandler, inject } from '@quiz/shared';
 
-import { init } from '../../init';
+import { init, playersService, questionsService, quizStateService } from '../../di';
 
 init();
 
@@ -14,9 +14,9 @@ export interface CurrentQuestionResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const quizState = new QuizStateService();
-    const questions = new QuestionsService();
-    const players = new PlayersService();
+    const quizState = inject(quizStateService);
+    const questions = inject(questionsService);
+    const players = inject(playersService);
 
     const state = await quizState.getCurrentQuestion();
     const question = state.id ? await questions.getQuestion(state.id) : null;

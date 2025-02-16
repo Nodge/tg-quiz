@@ -1,7 +1,7 @@
-import { type Question, QuestionsService } from '@quiz/core';
-import { apiHandler } from '@quiz/shared';
+import type { Question } from '@quiz/core';
+import { apiHandler, inject } from '@quiz/shared';
 
-import { init } from '../../init';
+import { init, questionsService } from '../../di';
 
 init();
 
@@ -10,7 +10,7 @@ export interface QuestionsResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const questions = new QuestionsService();
+    const questions = inject(questionsService);
 
     const data: QuestionsResponse = {
         questions: await questions.getAllQuestions(),

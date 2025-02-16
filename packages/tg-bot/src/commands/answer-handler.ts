@@ -1,20 +1,14 @@
-import {
-    type Player,
-    type Question,
-    type QuestionAnswer,
-    PlayersService,
-    QuestionsService,
-    QuizStateService,
-    AnswersService,
-} from '@quiz/core';
+import { inject } from '@quiz/shared';
+import type { Player, Question, QuestionAnswer } from '@quiz/core';
 
 import { Bot } from '../bot';
+import { answersService, playersService, questionsService, quizStateService } from '../di';
 
 export function registerAnswerHandler(bot: Bot) {
-    const quizState = new QuizStateService();
-    const questions = new QuestionsService();
-    const players = new PlayersService();
-    const answers = new AnswersService();
+    const quizState = inject(quizStateService);
+    const questions = inject(questionsService);
+    const players = inject(playersService);
+    const answers = inject(answersService);
 
     bot.action(/^answer_(\d+)$/, async ctx => {
         const userId = ctx.from.id.toString();

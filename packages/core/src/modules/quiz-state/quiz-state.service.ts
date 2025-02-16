@@ -1,18 +1,18 @@
-import { KeyValueStore } from '../kv-store';
-import { QuestionsService } from '../questions';
+import type { KeyValueStore } from '../kv-store';
+import type { QuestionsService } from '../questions';
 
 import type { QuizState, QuestionState } from './quiz-state.dto';
 
 export type QuizStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'FINISHED';
 
 export class QuizStateService {
-    private store: KeyValueStore<QuizState>;
+    private store: KeyValueStore;
     private questions: QuestionsService;
+    private stateKey = '2025';
 
-    public constructor() {
-        const STATE_ID = '2025';
-        this.store = new KeyValueStore<QuizState>(STATE_ID);
-        this.questions = new QuestionsService();
+    public constructor(kvStore: KeyValueStore, questions: QuestionsService) {
+        this.store = kvStore;
+        this.questions = questions;
     }
 
     public async getQuizStatus(): Promise<QuizStatus> {
@@ -35,7 +35,7 @@ export class QuizStateService {
     }
 
     public async getCurrentQuestion(): Promise<{ id: string | null; state: QuestionState }> {
-        const state = await this.store.get();
+        const state = await this.store.get<QuizState>(this.stateKey);
 
         if (state) {
             return {
@@ -51,13 +51,13 @@ export class QuizStateService {
     }
 
     public async setCurrentQuestion(id: string, state: QuestionState): Promise<void> {
-        await this.store.set({
+        await this.store.set(this.stateKey, {
             currentQuestionId: id,
             currentQuestionState: state,
         });
     }
 
     public async resetState(): Promise<void> {
-        await this.store.delete();
+        await this.store.delete(this.stateKey);
     }
 }

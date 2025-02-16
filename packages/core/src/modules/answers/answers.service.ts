@@ -1,13 +1,11 @@
-import { inject } from '@quiz/shared';
-
-import { type AnswersRepository, answersRepositoryToken } from './answers.repository';
+import { type AnswersRepository } from './answers.repository';
 import type { Answer } from './answer.dto';
 
 export class AnswersService {
     private answers: AnswersRepository;
 
-    public constructor() {
-        this.answers = inject(answersRepositoryToken);
+    public constructor(answers: AnswersRepository) {
+        this.answers = answers;
     }
 
     public getAllAnswers(): Promise<Answer[]> {

@@ -1,14 +1,14 @@
-import { type Leaderboard, LeaderboardService } from '@quiz/core';
-import { apiHandler } from '@quiz/shared';
+import type { Leaderboard } from '@quiz/core';
+import { apiHandler, inject } from '@quiz/shared';
 
-import { init } from '../init';
+import { init, leaderboardService } from '../di';
 
 init();
 
 export type LeaderBoardResponse = Leaderboard;
 
 export const handler = apiHandler(async () => {
-    const leaderboard = new LeaderboardService();
+    const leaderboard = inject(leaderboardService);
     const data = await leaderboard.getLeaderboard();
 
     return {

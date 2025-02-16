@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, inject } from '@quiz/shared';
-import { usersRepositoryToken } from '@quiz/core';
 import { AuthService, AuthSession } from '@quiz/auth';
 
+import { usersRepository } from '../di';
 import { env } from './env';
 import { getApiBaseUrl } from './base-url';
 import { createSessionCookie } from './session';
@@ -31,8 +31,8 @@ export async function tryAuth(event: APIGatewayProxyEvent) {
         return false;
     }
 
-    const usersRepository = inject(usersRepositoryToken);
-    const user = await usersRepository.findById(verified.userId);
+    const users = inject(usersRepository);
+    const user = await users.findById(verified.userId);
     if (!user) {
         return false;
     }

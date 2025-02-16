@@ -1,14 +1,13 @@
-import { inject } from '@quiz/shared';
 import type { Question } from './question.dto';
-import { type QuestionsRepository, questionsRepositoryToken } from './questions.repository';
+import type { QuestionsRepository } from './questions.repository';
 
 export class QuestionsService {
     private cache: Question[] | null;
     private repository: QuestionsRepository;
 
-    public constructor() {
+    public constructor(repository: QuestionsRepository) {
         this.cache = null;
-        this.repository = inject(questionsRepositoryToken);
+        this.repository = repository;
     }
 
     public async getAllQuestions(): Promise<Question[]> {

@@ -1,17 +1,15 @@
-import { inject } from '@quiz/shared';
-
-import { type FileStorageRepository, fileStorageRepositoryToken, UploadedFile } from '../file-storage';
+import type { FileStorageRepository, UploadedFile } from '../file-storage';
 
 import type { Player } from './player.dto';
-import { playersRepositoryToken, type NewPlayerData, type PlayersRepository } from './players.repository';
+import type { NewPlayerData, PlayersRepository } from './players.repository';
 
 export class PlayersService {
     private players: PlayersRepository;
     private fileStorage: FileStorageRepository;
 
-    constructor() {
-        this.players = inject(playersRepositoryToken);
-        this.fileStorage = inject(fileStorageRepositoryToken);
+    constructor(players: PlayersRepository, fileStorage: FileStorageRepository) {
+        this.players = players;
+        this.fileStorage = fileStorage;
     }
 
     public async createOrUpdate(newPlayer: NewPlayerData): Promise<Player> {

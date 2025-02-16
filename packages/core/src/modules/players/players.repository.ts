@@ -1,5 +1,3 @@
-import { createToken } from '@quiz/shared';
-
 import type { Player } from './player.dto';
 
 export type NewPlayerData = Omit<Player, 'createdAt' | 'currentMessageId' | 'currentQuestionId'>;
@@ -10,5 +8,3 @@ export abstract class PlayersRepository {
     public abstract create(data: NewPlayerData): Promise<Player>;
     public abstract update(player: Player): Promise<void>;
 }
-
-export const playersRepositoryToken = createToken<PlayersRepository>('PlayersRepository');

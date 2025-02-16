@@ -1,7 +1,7 @@
-import { type Question, QuestionsService } from '@quiz/core';
-import { apiHandler } from '@quiz/shared';
+import type { Question } from '@quiz/core';
+import { apiHandler, inject } from '@quiz/shared';
 
-import { init } from '../../init';
+import { init, questionsService } from '../../di';
 
 init();
 
@@ -19,7 +19,7 @@ export const handler = apiHandler(async event => {
     }
 
     const req = JSON.parse(body) as SaveQuestionRequest;
-    const questions = new QuestionsService();
+    const questions = inject(questionsService);
 
     await questions.update(req.question);
 

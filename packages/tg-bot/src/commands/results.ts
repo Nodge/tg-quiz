@@ -1,16 +1,17 @@
-import { type Answer, AnswersService, type Question, QuestionsService, QuizStateService } from '@quiz/core';
-import { retry } from '@quiz/shared';
+import type { Answer, Question } from '@quiz/core';
+import { inject, retry } from '@quiz/shared';
 
 import { escapeHTML } from '../lib/escape-html';
 import { sendMessageByChunks } from '../lib/send-message-by-chunks';
 
 import { Bot } from '../bot';
 import { env } from '../env';
+import { answersService, questionsService, quizStateService } from '../di';
 
 export function registerResultsCommand(bot: Bot) {
-    const quisState = new QuizStateService();
-    const questions = new QuestionsService();
-    const answers = new AnswersService();
+    const quisState = inject(quizStateService);
+    const questions = inject(questionsService);
+    const answers = inject(answersService);
 
     bot.command('results', async ctx => {
         const status = await quisState.getQuizStatus();

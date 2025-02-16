@@ -1,4 +1,5 @@
-const store = new Map<symbol, unknown>();
+const factories = new Map<symbol, () => unknown>();
+const instances = new Map<symbol, unknown>();
 
 type Token<T> = {
     /** Unique identifier for this token. */
@@ -17,18 +18,25 @@ export function createToken<T>(name: string): Token<T> {
     };
 }
 
-export function register<T>(token: Token<T>, value: NoInfer<T>) {
-    if (store.has(token.id)) {
+export function register<T>(token: Token<T>, factory: () => NoInfer<T>) {
+    if (factories.has(token.id)) {
         throw new Error(`Token ${token.name} already registered.`);
     }
 
-    store.set(token.id, value);
+    factories.set(token.id, factory);
 }
 
 export function inject<T>(token: Token<T>): T {
-    if (!store.has(token.id)) {
+    const factory = factories.get(token.id);
+    if (!factory) {
         throw new Error(`Token ${token.name} has not been registered.`);
     }
 
-    return store.get(token.id) as T;
+    let instance = instances.get(token.id);
+    if (instance === undefined) {
+        instance = factory();
+        instances.set(token.id, instance);
+    }
+
+    return instance as T;
 }

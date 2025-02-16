@@ -1,7 +1,7 @@
-import { AnswersService, type Question, type QuestionState, QuizStateService } from '@quiz/core';
-import { apiHandler } from '@quiz/shared';
+import type { Question, QuestionState } from '@quiz/core';
+import { apiHandler, inject } from '@quiz/shared';
 
-import { init } from '../../init';
+import { answersService, init, quizStateService } from '../../di';
 
 init();
 
@@ -12,10 +12,10 @@ export interface ResetResponse {
 }
 
 export const handler = apiHandler(async () => {
-    const quizState = new QuizStateService();
+    const quizState = inject(quizStateService);
     await quizState.resetState();
 
-    const answers = new AnswersService();
+    const answers = inject(answersService);
     await answers.deleteAll();
 
     const response: ResetResponse = {

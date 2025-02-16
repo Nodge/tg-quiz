@@ -1,14 +1,16 @@
 import { Resource } from 'sst';
 
 import { PlayersService } from '@quiz/core';
+import { inject } from '@quiz/shared';
 
 import { escapeHTML } from '../lib/escape-html';
 
 import { env } from '../env';
 import { Bot } from '../bot';
+import { playersService } from '../di';
 
 export function registerStartCommand(bot: Bot) {
-    const players = new PlayersService();
+    const players = inject(playersService);
 
     bot.start(async ctx => {
         let avatarId: string | null = null;

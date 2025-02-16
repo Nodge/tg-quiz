@@ -1,8 +1,8 @@
-import { QuestionsService, type QuestionState, QuizStateService, type Player, PlayersService } from '@quiz/core';
-import { apiHandler, RateLimitedQueue, retry } from '@quiz/shared';
+import type { QuestionState, Player } from '@quiz/core';
+import { apiHandler, inject, RateLimitedQueue, retry } from '@quiz/shared';
 import { bot } from '@quiz/tg-bot';
 
-import { init } from '../../init';
+import { init, playersService, questionsService, quizStateService } from '../../di';
 
 init();
 
@@ -25,8 +25,8 @@ export const handler = apiHandler(async event => {
 
     const req = JSON.parse(body) as StopQuestionRequest;
 
-    const quizState = new QuizStateService();
-    const questions = new QuestionsService();
+    const quizState = inject(quizStateService);
+    const questions = inject(questionsService);
 
     const { id, state } = await quizState.getCurrentQuestion();
     if (!id) {
@@ -53,7 +53,7 @@ export const handler = apiHandler(async event => {
 });
 
 async function stopCurrentQuestionToPlayers(req: StopQuestionRequest, hasNextQuestion: boolean) {
-    const players = new PlayersService();
+    const players = inject(playersService);
     const allPlayers = await players.getAllPlayers();
     const queue = new RateLimitedQueue({ maxPerSecond: 20 });
 
@@ -72,8 +72,8 @@ async function stopCurrentQuestionToPlayers(req: StopQuestionRequest, hasNextQue
 }
 
 async function stopQuestion(req: StopQuestionRequest, player: Player, hasNextQuestion: boolean) {
-    const players = new PlayersService();
-    const questions = new QuestionsService();
+    const players = inject(playersService);
+    const questions = inject(questionsService);
 
     if (player.currentMessageId) {
         await bot.telegram.editMessageReplyMarkup(player.telegramId, Number(player.currentMessageId), undefined, {

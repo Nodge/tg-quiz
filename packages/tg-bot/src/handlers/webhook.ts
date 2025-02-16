@@ -1,7 +1,7 @@
 import { apiHandler } from '@quiz/shared';
 
 import { bot } from '../bot';
-import { init } from '../init';
+import { init } from '../di';
 import { initCommands } from '../commands';
 
 init();
