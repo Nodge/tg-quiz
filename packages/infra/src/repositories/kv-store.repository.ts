@@ -1,36 +1,31 @@
 import { Resource } from 'sst';
-import { KeyValueStoreRepository } from '@quiz/core';
-import { db } from '../db';
+import type { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
-export class DynamoDBKeyValueStoreRepository extends KeyValueStoreRepository {
+export class DynamoDBKeyValueStoreRepository<T> {
     private tableName = Resource.QuizStateTable.name;
 
-    public async get(key: string) {
-        const res = await db.get({
+    public constructor(
+        private key: string,
+        private db: DynamoDBDocument
+    ) {}
+
+    public async load(): Promise<T | null> {
+        const res = await this.db.get({
             TableName: this.tableName,
             Key: {
-                id: key,
+                id: this.key,
             },
         });
 
-        return res.Item?.value as unknown;
+        return res.Item?.value as T;
     }
 
-    public async set(key: string, value: unknown) {
-        await db.put({
+    public async save(value: T) {
+        await this.db.put({
             TableName: this.tableName,
             Item: {
-                id: key,
+                id: this.key,
                 value,
-            },
-        });
-    }
-
-    public async delete(key: string) {
-        await db.delete({
-            TableName: this.tableName,
-            Key: {
-                id: key,
             },
         });
     }

@@ -1,2 +1,1 @@
-export { Markup } from 'telegraf';
-export { bot } from './bot';
+export { PlayersNotificationService } from './services/PlayersNotificationService';

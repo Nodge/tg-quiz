@@ -1,15 +1,9 @@
-import { APIGatewayProxyEvent, inject } from '@quiz/shared';
-import { AuthService, AuthSession } from '@quiz/auth';
+import { APIGatewayProxyEvent } from '@quiz/shared';
+import type { AuthService, AuthSession } from '@quiz/auth';
+import type { UsersRepository } from '@quiz/core';
 
-import { usersRepository } from '../di';
-import { env } from './env';
 import { getApiBaseUrl } from './base-url';
 import { createSessionCookie } from './session';
-
-export const authService = new AuthService({
-    clientId: 'web',
-    authServerUrl: env('AUTH_SERVER_URL'),
-});
 
 export const authSession = createSessionCookie<AuthSession>({
     name: 'auth',
@@ -20,21 +14,20 @@ export const authSession = createSessionCookie<AuthSession>({
     maxAge: 34560000,
 });
 
-export async function tryAuth(event: APIGatewayProxyEvent) {
+export async function tryAuth(event: APIGatewayProxyEvent, authService: AuthService, usersRepository: UsersRepository) {
     const session = await authSession.getSession(event.cookies?.join(';') ?? '');
     if (!session) {
-        return false;
+        return null;
     }
 
     const verified = await authService.validateSession(session);
     if (!verified.isValid) {
-        return false;
+        return null;
     }
 
-    const users = inject(usersRepository);
-    const user = await users.findById(verified.userId);
+    const user = await usersRepository.findById(verified.userId);
     if (!user) {
-        return false;
+        return null;
     }
 
     return {

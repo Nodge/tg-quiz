@@ -2,8 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
-import "sst"
-export {}
+
 declare module "sst" {
   export interface Resource {
     "Admin": {
@@ -43,6 +42,10 @@ declare module "sst" {
       "type": "sst.aws.Router"
       "url": string
     }
+    "PlayerStateTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "QuestionsTable": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -73,3 +76,7 @@ declare module "sst" {
     }
   }
 }
+/// <reference path="sst-env.d.ts" />
+
+import "sst"
+export {}

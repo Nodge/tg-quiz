@@ -1,8 +1,6 @@
 import { apiHandler } from '@quiz/shared';
-import { authSession, tryAuth } from '../../lib/auth';
-import { init } from '../../di';
-
-init();
+import { authSession } from '../../lib/auth';
+import { createRequestContext } from '../../lib/request-context';
 
 export type UserInfoResponse =
     | {
@@ -15,9 +13,10 @@ export type UserInfoResponse =
       };
 
 export const handler = apiHandler(async event => {
-    const auth = await tryAuth(event);
+    const ctx = await createRequestContext(event);
+    const user = ctx.currentUser.getUser();
 
-    if (!auth) {
+    if (!user) {
         return {
             statusCode: 200,
             body: JSON.stringify({ isAuthenticated: false } satisfies UserInfoResponse),
@@ -28,9 +27,9 @@ export const handler = apiHandler(async event => {
         statusCode: 200,
         body: JSON.stringify({
             isAuthenticated: true,
-            userId: auth.user.id,
-            role: auth.user.role,
+            userId: user.id,
+            role: user.role,
         } satisfies UserInfoResponse),
-        cookies: auth.session ? await authSession.commitSession(auth.session) : undefined,
+        cookies: ctx.authSession ? await authSession.commitSession(ctx.authSession) : undefined,
     };
 });

@@ -1,25 +1,42 @@
 import { Resource } from 'sst';
-import { QuestionsRepository, type Question } from '@quiz/core';
+import { array, assert, number, string, type } from 'superstruct';
+import type { QuestionsRepository, Question } from '@quiz/core';
+import type { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 
 import { paginate } from '../lib/paginate';
-import { db } from '../db';
 
-export class DynamoDBQuestionsRepository extends QuestionsRepository {
+const dbSchema = type({
+    id: string(),
+    title: string(),
+    answers: array(
+        type({
+            id: string(),
+            title: string(),
+            score: number(),
+        })
+    ),
+    index: number(),
+});
+
+export class DynamoDBQuestionsRepository implements QuestionsRepository {
     private tableName = Resource.QuestionsTable.name;
+
+    constructor(private db: DynamoDBDocument) {}
 
     public async findAll(): Promise<Question[]> {
         const questions = await paginate(key =>
-            db.scan({
+            this.db.scan({
                 TableName: this.tableName,
                 ExclusiveStartKey: key,
             })
         );
 
-        return questions as Question[];
+        assert(questions, array(dbSchema));
+        return questions;
     }
 
     public async findById(id: string): Promise<Question | null> {
-        const res = await db.get({
+        const res = await this.db.get({
             TableName: this.tableName,
             Key: { id },
         });
@@ -28,16 +45,12 @@ export class DynamoDBQuestionsRepository extends QuestionsRepository {
             return null;
         }
 
-        return res.Item as Question;
+        assert(res.Item, dbSchema);
+        return res.Item;
     }
 
-    public async create(data: Omit<Question, 'id'>): Promise<Question> {
-        const question: Question = {
-            ...data,
-            id: crypto.randomUUID(),
-        };
-
-        await db.put({
+    public async create(question: Question): Promise<Question> {
+        await this.db.put({
             TableName: this.tableName,
             Item: question,
         });
@@ -46,7 +59,7 @@ export class DynamoDBQuestionsRepository extends QuestionsRepository {
     }
 
     public async update(data: Question): Promise<void> {
-        await db.put({
+        await this.db.put({
             TableName: this.tableName,
             Item: data,
         });
@@ -57,7 +70,7 @@ export class DynamoDBQuestionsRepository extends QuestionsRepository {
 
         for (let i = 0; i < data.length; i += chunkSize) {
             const batch = data.slice(i, i + chunkSize);
-            const res = await db.batchWrite({
+            const res = await this.db.batchWrite({
                 RequestItems: {
                     [this.tableName]: batch.map(item => ({
                         PutRequest: {
@@ -74,7 +87,7 @@ export class DynamoDBQuestionsRepository extends QuestionsRepository {
     }
 
     public async delete(id: string): Promise<void> {
-        await db.delete({
+        await this.db.delete({
             TableName: this.tableName,
             Key: { id },
         });

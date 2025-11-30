@@ -17,8 +17,7 @@ export default $config({
     async run() {
         $transform(sst.aws.Function, args => {
             args.architecture = 'arm64';
-            args.runtime = 'nodejs20.x';
-            // args.memory = '512 MB';
+            args.runtime = 'nodejs22.x';
         });
 
         const { domainName } = await import('./deploy/domain');

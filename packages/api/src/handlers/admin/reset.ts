@@ -1,9 +1,8 @@
-import type { Question, QuestionState } from '@quiz/core';
-import { apiHandler, inject } from '@quiz/shared';
+import { ResetQuizAnswersUseCase, type Question, type QuestionState } from '@quiz/core';
+import { apiHandler } from '@quiz/shared';
 
-import { answersService, init, quizStateService } from '../../di';
-
-init();
+import { createRequestContext } from '../../lib/request-context';
+import { validateCSRF } from '../../lib/csrf';
 
 export interface ResetResponse {
     question: Question | null;
@@ -11,12 +10,17 @@ export interface ResetResponse {
     hasNextQuestion: boolean;
 }
 
-export const handler = apiHandler(async () => {
-    const quizState = inject(quizStateService);
-    await quizState.resetState();
+export const handler = apiHandler(async event => {
+    if (!validateCSRF(event)) {
+        return {
+            statusCode: 400,
+        };
+    }
 
-    const answers = inject(answersService);
-    await answers.deleteAll();
+    const ctx = await createRequestContext(event);
+
+    const resetUseCase = new ResetQuizAnswersUseCase(ctx.quizStateService, ctx.answersRepository, ctx.currentUser);
+    await resetUseCase.execute();
 
     const response: ResetResponse = {
         question: null,

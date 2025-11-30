@@ -1,6 +1,15 @@
-import { Telegraf } from 'telegraf';
-import { env } from './env';
+import { Telegraf, Context } from 'telegraf';
+import { env } from './lib/env';
+import { createMessageContext, MessageContext } from './lib/message-context';
 
-export type Bot = Telegraf;
+interface CustomContext extends Context, MessageContext {}
 
-export const bot: Bot = new Telegraf(env('TELEGRAM_BOT_TOKEN'));
+export type TelegramBot = Telegraf<CustomContext>;
+
+export const bot: TelegramBot = new Telegraf<CustomContext>(env('TELEGRAM_BOT_TOKEN'));
+
+bot.use(async (ctx, next) => {
+    const services = await createMessageContext(ctx);
+    Object.assign(ctx, services);
+    return next();
+});

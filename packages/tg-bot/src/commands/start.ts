@@ -1,55 +1,33 @@
 import { Resource } from 'sst';
+import { RegisterPlayerUseCase } from '@quiz/core';
 
-import { PlayersService } from '@quiz/core';
-import { inject } from '@quiz/shared';
+import type { TelegramBot } from '../bot';
 
-import { escapeHTML } from '../lib/escape-html';
-
-import { env } from '../env';
-import { Bot } from '../bot';
-import { playersService } from '../di';
-
-export function registerStartCommand(bot: Bot) {
-    const players = inject(playersService);
-
+export function registerStartCommand(bot: TelegramBot) {
     bot.start(async ctx => {
-        let avatarId: string | null = null;
+        const userId = ctx.from.id;
+
+        let avatar: Blob | null = null;
         try {
-            avatarId = await uploadAvatar(players, ctx.from.id);
+            avatar = await loadAvatarFile(userId);
         } catch (err) {
-            console.warn('Failed to save user avatar', err);
+            console.warn('Failed to load user avatar', err);
         }
 
-        await players.createOrUpdate({
-            telegramId: ctx.from.id.toString(),
-            telegramLogin: ctx.from.username ?? ctx.from.first_name,
-            avatarId,
-            blocked: false,
-        });
+        const registerPlayer = new RegisterPlayerUseCase(
+            ctx.playersRepository,
+            ctx.fileStorageRepository,
+            ctx.playersNotificationService
+        );
 
-        const zoomLink = Resource.ZoomLink.value;
-
-        const name = ctx.from.first_name;
-        const message = [
-            `${escapeHTML(name) ?? 'Дружок'}, добро пожаловать в Infra Quiz!`,
-            '',
-            'Для участия в квизе:',
-            `– залетай на <a href="${zoomLink}">встречу в zoom</a>`,
-            '– слушай интересные истории и получай задания от ведущего',
-            '– отвечай на вопросы через этот чат, нажимая на кнопку с правильным ответом',
-            '– побеждай и получай новогоднюю ачивку на staff!',
-            '',
-            `<a href="${env('SITE_URL')}">За результатами можно следить здесь</a>`,
-        ].join('\n');
-
-        await ctx.reply(message, {
-            parse_mode: 'HTML',
-            // @ts-expect-error Опция не описана в типах библиотеки
-            disable_web_page_preview: true,
+        await registerPlayer.execute({
+            externalId: userId.toString(),
+            name: ctx.from.username ?? ctx.from.first_name,
+            avatar,
         });
     });
 
-    async function uploadAvatar(players: PlayersService, userId: number): Promise<string | null> {
+    async function loadAvatarFile(userId: number): Promise<Blob | null> {
         const photos = await bot.telegram.getUserProfilePhotos(userId);
         if (!photos || photos.total_count === 0) {
             return null;
@@ -69,8 +47,6 @@ export function registerStartCommand(bot: Bot) {
         }
 
         const blob = await res.blob();
-        const avatar = await players.uploadAvatar(blob);
-
-        return avatar.id;
+        return blob;
     }
 }

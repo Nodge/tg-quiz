@@ -1,15 +1,20 @@
-import type { Question } from '@quiz/core';
-import { apiHandler, inject } from '@quiz/shared';
+import { ReorderQuestionsUseCase, type Question } from '@quiz/core';
+import { apiHandler } from '@quiz/shared';
 
-import { init, questionsService } from '../../di';
-
-init();
+import { createRequestContext } from '../../lib/request-context';
+import { validateCSRF } from '../../lib/csrf';
 
 export interface SaveQuestionsOrderRequest {
     questions: Question[];
 }
 
 export const handler = apiHandler(async event => {
+    if (!validateCSRF(event)) {
+        return {
+            statusCode: 400,
+        };
+    }
+
     const body = event.body;
     if (!body) {
         return {
@@ -18,10 +23,15 @@ export const handler = apiHandler(async event => {
         };
     }
 
+    const ctx = await createRequestContext(event);
     const req = JSON.parse(body) as SaveQuestionsOrderRequest;
 
-    const questions = inject(questionsService);
-    await questions.saveQuestionsOrder(req.questions);
+    const reorderQuestions = new ReorderQuestionsUseCase(
+        ctx.questionsRepository,
+        ctx.questionsService,
+        ctx.currentUser
+    );
+    await reorderQuestions.execute(req.questions);
 
     return {
         statusCode: 201,

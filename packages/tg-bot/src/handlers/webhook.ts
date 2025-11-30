@@ -1,10 +1,8 @@
 import { apiHandler } from '@quiz/shared';
 
 import { bot } from '../bot';
-import { init } from '../di';
 import { initCommands } from '../commands';
 
-init();
 initCommands(bot);
 
 export const handler = apiHandler(async event => {

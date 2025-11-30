@@ -1,10 +1,10 @@
-import { Bot } from './bot';
+import type { TelegramBot } from './bot';
 import { registerAnswerHandler } from './commands/answer-handler';
 import { registerMessageHandler } from './commands/message-handler';
 import { registerResultsCommand } from './commands/results';
 import { registerStartCommand } from './commands/start';
 
-export function initCommands(bot: Bot) {
+export function initCommands(bot: TelegramBot) {
     registerStartCommand(bot);
     registerAnswerHandler(bot);
     registerResultsCommand(bot);

@@ -1,21 +1,25 @@
-import { DynamoDBUsersRepository } from '@quiz/infra';
+import { createDb, DynamoDBUsersRepository } from '@quiz/infra';
 
-class UsersService {
+export class UsersService {
     private users: DynamoDBUsersRepository;
 
     constructor() {
-        this.users = new DynamoDBUsersRepository();
+        const db = createDb();
+        this.users = new DynamoDBUsersRepository(db);
     }
 
     public async createByEmail(email: string): Promise<string> {
         let user = await this.users.findByEmail(email);
 
         if (!user) {
-            user = await this.users.create({ email });
+            user = await this.users.create({
+                id: crypto.randomUUID(),
+                email,
+                role: 'basic',
+                createdAt: Date.now(),
+            });
         }
 
         return user.id;
     }
 }
-
-export const usersService = new UsersService();

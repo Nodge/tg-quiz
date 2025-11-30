@@ -1,15 +1,12 @@
 import type { Leaderboard } from '@quiz/core';
-import { apiHandler, inject } from '@quiz/shared';
-
-import { init, leaderboardService } from '../di';
-
-init();
+import { apiHandler } from '@quiz/shared';
+import { createRequestContext } from '../lib/request-context';
 
 export type LeaderBoardResponse = Leaderboard;
 
-export const handler = apiHandler(async () => {
-    const leaderboard = inject(leaderboardService);
-    const data = await leaderboard.getLeaderboard();
+export const handler = apiHandler(async event => {
+    const ctx = await createRequestContext(event);
+    const data = await ctx.leaderboardService.getLeaderboard();
 
     return {
         statusCode: 200,

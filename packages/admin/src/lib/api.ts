@@ -6,10 +6,8 @@ import type {
     ResetResponse,
     SaveQuestionRequest,
     NextQuestionResponse,
-    StopQuestionRequest,
     StopQuestionResponse,
 } from '@quiz/api';
-import { env } from './env';
 
 export async function getCurrentQuestion(): Promise<CurrentQuestionResponse> {
     const res = await fetch('/api/admin/current', { method: 'GET' });
@@ -30,17 +28,7 @@ export async function startNextQuestion(): Promise<NextQuestionResponse> {
 }
 
 export async function stopCurrentQuestion(): Promise<StopQuestionResponse> {
-    const body: StopQuestionRequest = {
-        siteUrl: env('VITE_SITE_URL') + '/',
-    };
-
-    const res = await fetch('/api/admin/stop', {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify(body),
-    });
+    const res = await fetch('/api/admin/stop', { method: 'POST' });
 
     if (!res.ok) {
         throw new Error('Failed to stop question');

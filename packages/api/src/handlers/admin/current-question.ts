@@ -1,9 +1,7 @@
 import type { Question, QuestionState } from '@quiz/core';
-import { apiHandler, inject } from '@quiz/shared';
+import { apiHandler } from '@quiz/shared';
 
-import { init, playersService, questionsService, quizStateService } from '../../di';
-
-init();
+import { createRequestContext } from '../../lib/request-context';
 
 export interface CurrentQuestionResponse {
     question: Question | null;
@@ -13,22 +11,20 @@ export interface CurrentQuestionResponse {
     questionsCount: number;
 }
 
-export const handler = apiHandler(async () => {
-    const quizState = inject(quizStateService);
-    const questions = inject(questionsService);
-    const players = inject(playersService);
+export const handler = apiHandler(async event => {
+    const ctx = await createRequestContext(event);
 
-    const state = await quizState.getCurrentQuestion();
-    const question = state.id ? await questions.getQuestion(state.id) : null;
-    const hasNextQuestion = state.id ? await questions.hasNextQuestion(state.id) : true;
-    const allPlayers = await players.getAllPlayers();
+    const state = await ctx.quizStateService.getCurrentQuestion();
+    const question = state.id ? await ctx.questionsService.getQuestion(state.id) : null;
+    const hasNextQuestion = state.id ? await ctx.questionsService.hasNextQuestion(state.id) : true;
+    const allPlayers = await ctx.playersRepository.findAll();
 
     const data: CurrentQuestionResponse = {
         question,
         state: state.state,
         hasNextQuestion,
         usersCount: allPlayers.filter(user => !user.blocked).length,
-        questionsCount: (await questions.getAllQuestions()).length,
+        questionsCount: await ctx.questionsService.getQuestionsCount(),
     };
 
     return {

@@ -10,8 +10,8 @@
     },
     "scripts": {},
     "devDependencies": {
-        "@tsconfig/node20": "20.1.4",
-        "@types/node": "20.17.10",
-        "@types/aws-lambda": "8.10.146"
+        "@tsconfig/node22": "22.0.3",
+        "@types/aws-lambda": "8.10.158",
+        "@types/node": "22.19.1"
     }
 }

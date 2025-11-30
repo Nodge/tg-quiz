@@ -1,10 +1,8 @@
-import type { Question, QuestionState, Player } from '@quiz/core';
-import { apiHandler, inject, RateLimitedQueue, retry } from '@quiz/shared';
-import { bot, Markup } from '@quiz/tg-bot';
+import { type Question, type QuestionState, ActivateNextQuestionUseCase } from '@quiz/core';
+import { apiHandler } from '@quiz/shared';
 
-import { init, playersService, questionsService, quizStateService } from '../../di';
-
-init();
+import { createRequestContext } from '../../lib/request-context';
+import { validateCSRF } from '../../lib/csrf';
 
 export interface NextQuestionResponse {
     question: Question;
@@ -12,17 +10,24 @@ export interface NextQuestionResponse {
     hasNextQuestion: boolean;
 }
 
-export const handler = apiHandler(async () => {
-    const quizState = inject(quizStateService);
-    const questions = inject(questionsService);
-
-    const { id, state } = await quizState.getCurrentQuestion();
-    const nextQuestion = await questions.getNextQuestion(id);
-
-    if (state === 'ON_AIR') {
-        throw new Error('Previous question has not been stopped');
+export const handler = apiHandler(async event => {
+    if (!validateCSRF(event)) {
+        return {
+            statusCode: 400,
+        };
     }
 
+    const ctx = await createRequestContext(event);
+    const activateQuestion = new ActivateNextQuestionUseCase(
+        ctx.quizStateService,
+        ctx.questionsService,
+        ctx.playersRepository,
+        ctx.playerStateRepository,
+        ctx.playersNotificationService,
+        ctx.currentUser
+    );
+
+    const nextQuestion = await activateQuestion.execute();
     if (!nextQuestion) {
         return {
             statusCode: 400,
@@ -30,11 +35,7 @@ export const handler = apiHandler(async () => {
         };
     }
 
-    const hasNextQuestion = await questions.hasNextQuestion(nextQuestion.id);
-
-    await broadcastQuestionToPlayers(nextQuestion);
-
-    await quizState.setCurrentQuestion(nextQuestion.id, 'ON_AIR');
+    const hasNextQuestion = await ctx.questionsService.hasNextQuestion(nextQuestion.id);
 
     const response: NextQuestionResponse = {
         question: nextQuestion,
@@ -47,41 +48,3 @@ export const handler = apiHandler(async () => {
         body: JSON.stringify(response),
     };
 });
-
-async function broadcastQuestionToPlayers(question: Question) {
-    const players = inject(playersService);
-    const allPlayers = await players.getAllPlayers();
-    const queue = new RateLimitedQueue({ maxPerSecond: 20 });
-
-    const promises: Promise<void>[] = [];
-
-    for (const player of allPlayers) {
-        const promise = retry(() => queue.add(() => sendQuestion(player, question)), { maxRetries: 3 });
-        promises.push(
-            promise.catch(err => {
-                console.error(new Error(`Failed to start question for player ${player.telegramId}`, { cause: err }));
-            })
-        );
-    }
-
-    await Promise.all(promises);
-}
-
-async function sendQuestion(player: Player, question: Question) {
-    const players = inject(playersService);
-
-    const text = ['Вопрос:', question.title, '', 'Варианты ответов:'].join('\n');
-    const answers = question.answers.map((answer, index) => {
-        return Markup.button.callback(answer.title, `answer_${index}`);
-    });
-
-    const message = await bot.telegram.sendMessage(
-        player.telegramId,
-        text,
-        Markup.inlineKeyboard(answers, {
-            columns: 1,
-        })
-    );
-
-    await players.setLastMessageId(player, message.message_id.toString(), question.id);
-}

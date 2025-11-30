@@ -1,15 +1,20 @@
-import type { Question } from '@quiz/core';
-import { apiHandler, inject } from '@quiz/shared';
+import { DeleteQuestionUseCase, type Question } from '@quiz/core';
+import { apiHandler } from '@quiz/shared';
 
-import { init, questionsService } from '../../di';
-
-init();
+import { createRequestContext } from '../../lib/request-context';
+import { validateCSRF } from '../../lib/csrf';
 
 export interface DeleteQuestionRequest {
     question: Question;
 }
 
 export const handler = apiHandler(async event => {
+    if (!validateCSRF(event)) {
+        return {
+            statusCode: 400,
+        };
+    }
+
     const body = event.body;
     if (!body) {
         return {
@@ -18,10 +23,11 @@ export const handler = apiHandler(async event => {
         };
     }
 
+    const ctx = await createRequestContext(event);
     const req = JSON.parse(body) as DeleteQuestionRequest;
-    const questions = inject(questionsService);
 
-    await questions.delete(req.question);
+    const deleteQuestion = new DeleteQuestionUseCase(ctx.questionsRepository, ctx.currentUser);
+    await deleteQuestion.execute(req.question);
 
     return {
         statusCode: 201,

@@ -1,28 +1,24 @@
-import type { Answer, Question } from '@quiz/core';
-import { inject, retry } from '@quiz/shared';
+import type { PlayerAnswer, Question } from '@quiz/core';
+import { retry } from '@quiz/shared';
 
 import { escapeHTML } from '../lib/escape-html';
 import { sendMessageByChunks } from '../lib/send-message-by-chunks';
 
-import { Bot } from '../bot';
-import { env } from '../env';
-import { answersService, questionsService, quizStateService } from '../di';
+import type { TelegramBot } from '../bot';
+import { env } from '../lib/env';
 
-export function registerResultsCommand(bot: Bot) {
-    const quisState = inject(quizStateService);
-    const questions = inject(questionsService);
-    const answers = inject(answersService);
-
+export function registerResultsCommand(bot: TelegramBot) {
     bot.command('results', async ctx => {
-        const status = await quisState.getQuizStatus();
+        const status = await ctx.quizStateService.getQuizStatus();
         if (status !== 'FINISHED') {
             await ctx.reply('Результаты недоступны');
             return;
         }
 
-        const allQuestions = await questions.getAllQuestions();
-        const allAnswers = await answers.getUserAnswers(ctx.from.id.toString());
-        const answerMap = new Map<string, Answer>(allAnswers.map(answer => [answer.questionId, answer]));
+        const userId = ctx.from.id.toString();
+        const allQuestions = await ctx.questionsService.getAllQuestions();
+        const allAnswers = await ctx.answersRepository.findAllByUserId(userId);
+        const answerMap = new Map<string, PlayerAnswer>(allAnswers.map(answer => [answer.questionId, answer]));
 
         const message = formatMessage(allQuestions, answerMap);
 
@@ -32,7 +28,7 @@ export function registerResultsCommand(bot: Bot) {
     });
 }
 
-function formatMessage(questions: Question[], answers: Map<string, Answer>) {
+function formatMessage(questions: Question[], answers: Map<string, PlayerAnswer>) {
     const message: string[] = ['🎉 <b>Ваш результат</b> 🎉'];
 
     for (const question of questions) {
@@ -46,7 +42,7 @@ function formatMessage(questions: Question[], answers: Map<string, Answer>) {
     return message;
 }
 
-function formatQuestion(question: Question, answer: Answer | undefined): string {
+function formatQuestion(question: Question, answer: PlayerAnswer | undefined): string {
     const message: string[] = [];
 
     message.push(formatNumber(question.index + 1));
@@ -106,7 +102,7 @@ function formatScore(n: number) {
     return `+${n} ${form}`;
 }
 
-function formatFooter(answers: Answer[]): string {
+function formatFooter(answers: PlayerAnswer[]): string {
     const score = answers.reduce((sum, answer) => sum + answer.score, 0);
 
     const message: string[] = [

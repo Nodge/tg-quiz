@@ -1,4 +1,4 @@
-import { usersTable, playersTable, answersTable, quizStateTable, questionsTable } from './db';
+import { usersTable, playersTable, answersTable, quizStateTable, questionsTable, playerStateTable } from './db';
 import { domainName } from './domain';
 import { avatarsBucket, avatarsCdnUrl } from './s3';
 import { botToken } from './secrets';
@@ -9,7 +9,15 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
     transform: {
         route: {
             handler: {
-                link: [botToken, usersTable, playersTable, questionsTable, answersTable, quizStateTable],
+                link: [
+                    botToken,
+                    usersTable,
+                    playersTable,
+                    playerStateTable,
+                    questionsTable,
+                    answersTable,
+                    quizStateTable,
+                ],
                 environment: {
                     NODE_ENV: $dev ? 'development' : 'production',
                     APP_ENV: $dev ? 'development' : 'production',
@@ -19,6 +27,7 @@ export const api = new sst.aws.ApiGatewayV2('ApiRouter', {
                     AVATARS_BUCKET_NAME: avatarsBucket.name,
                     API_URL: `https://${domainName}/api/`,
                     AUTH_SERVER_URL: `https://auth.${domainName}`,
+                    SITE_URL: `https://${domainName}/`,
                 },
             },
         },

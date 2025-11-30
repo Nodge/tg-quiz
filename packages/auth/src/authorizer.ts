@@ -1,15 +1,15 @@
 import { handle } from 'hono/aws-lambda';
-import { authorizer } from '@openauthjs/openauth';
-import { PasswordAdapter } from '@openauthjs/openauth/adapter/password';
-import { CodeAdapter } from '@openauthjs/openauth/adapter/code';
+import { issuer } from '@openauthjs/openauth';
+import type { Provider } from '@openauthjs/openauth/provider/provider';
+import { PasswordProvider } from '@openauthjs/openauth/provider/password';
+import { CodeProvider } from '@openauthjs/openauth/provider/code';
 import { PasswordUI } from '@openauthjs/openauth/ui/password';
 import { CodeUI } from '@openauthjs/openauth/ui/code';
 
 import { subjects } from './subjects';
 import { env } from './env';
 import { sendCodeEmail } from './email-sender';
-import { usersService } from './users.service';
-import { Adapter } from '@openauthjs/openauth/adapter/adapter';
+import { UsersService } from './users.service';
 
 interface AuthClient {
     allowedOrigins: string[];
@@ -24,21 +24,23 @@ const clients: Record<string, AuthClient> = {
     },
 };
 
-const app = authorizer({
+const usersService = new UsersService();
+
+const app = issuer({
     subjects,
     theme: {
         title: 'Infra Quiz Auth',
         primary: '#f3663f',
     },
     providers: {
-        password: PasswordAdapter(
+        password: PasswordProvider(
             PasswordUI({
                 sendCode: async (email, code) => {
                     await sendCodeEmail(email, code);
                 },
             })
         ),
-        code: CodeAdapter<{ email: string }>(
+        code: CodeProvider<{ email: string }>(
             CodeUI({
                 sendCode: async (claims, code) => {
                     const email = claims.email;
@@ -55,10 +57,15 @@ const app = authorizer({
                       type: 'local',
                       init(routes, ctx) {
                           routes.get('/authorize', async c => {
-                              return ctx.forward(c, await ctx.success(c, {}));
+                              return ctx.forward(
+                                  c,
+                                  await ctx.success(c, {
+                                      provider: 'local',
+                                  })
+                              );
                           });
                       },
-                  } satisfies Adapter,
+                  } satisfies Provider<{ provider: 'local' }>,
               }
             : {}),
     },

@@ -18,6 +18,13 @@ export const playersTable = new sst.aws.Dynamo('UsersTable', {
     primaryIndex: { hashKey: 'telegramId' },
 });
 
+export const playerStateTable = new sst.aws.Dynamo('PlayerStateTable', {
+    fields: {
+        playerId: 'string',
+    },
+    primaryIndex: { hashKey: 'playerId' },
+});
+
 export const questionsTable = new sst.aws.Dynamo('QuestionsTable', {
     fields: {
         id: 'string',

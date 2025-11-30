@@ -2,74 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+
+/// <reference path="../../sst-env.d.ts" />
+
 import "sst"
 export {}
-declare module "sst" {
-  export interface Resource {
-    "Admin": {
-      "type": "sst.aws.StaticSite"
-      "url": string
-    }
-    "AnswersTable": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
-    "ApiRouter": {
-      "type": "sst.aws.ApiGatewayV2"
-      "url": string
-    }
-    "Auth": {
-      "type": "sst.aws.Auth"
-      "url": string
-    }
-    "Avatars": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "AvatarsCDN": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
-    "BotApiRouter": {
-      "type": "sst.aws.ApiGatewayV2"
-      "url": string
-    }
-    "Email": {
-      "configSet": string
-      "sender": string
-      "type": "sst.aws.Email"
-    }
-    "MainRouter": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
-    "QuestionsTable": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
-    "QuizStateTable": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
-    "Site": {
-      "type": "sst.aws.StaticSite"
-      "url": string
-    }
-    "TelegramBotToken": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "UserAccountsTable": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
-    "UsersTable": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
-    "ZoomLink": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-  }
-}

@@ -10,11 +10,11 @@
     },
     "scripts": {},
     "devDependencies": {
-        "@aws-sdk/client-dynamodb": "3.712.0",
-        "@aws-sdk/client-s3": "3.712.0",
-        "@aws-sdk/lib-dynamodb": "3.712.0",
-        "@tsconfig/node20": "20.1.4",
-        "@types/node": "20.17.10",
-        "@quiz/shared": "workspace:*"
+        "@aws-sdk/client-dynamodb": "3.932.0",
+        "@aws-sdk/client-s3": "3.932.0",
+        "@aws-sdk/lib-dynamodb": "3.932.0",
+        "@quiz/shared": "workspace:*",
+        "@tsconfig/node22": "22.0.3",
+        "@types/node": "22.19.1"
     }
 }

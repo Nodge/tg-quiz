@@ -2,6 +2,7 @@
     "files": [],
     "references": [
         { "path": "./packages/shared" },
+        { "path": "./packages/infra" },
         { "path": "./packages/core" },
         { "path": "./packages/api" },
         { "path": "./packages/admin" },

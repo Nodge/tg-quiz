@@ -1,15 +1,13 @@
 import crypto from 'node:crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { FileStorageRepository, type UploadedFile } from '@quiz/core';
+import type { FileStorageRepository, UploadedFile } from '@quiz/core';
 
 import { env } from '../lib/env';
 
-export class S3FileStorageRepository extends FileStorageRepository {
+export class S3FileStorageRepository implements FileStorageRepository {
     private s3: S3Client;
 
     constructor() {
-        super();
-
         this.s3 = new S3Client({
             region: env('S3_REGION_NAME'),
         });

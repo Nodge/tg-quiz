@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Question, QuestionState } from '@quiz/core';
-import { UserInfoResponse } from '@quiz/api';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +18,7 @@ import {
 
 import { getCurrentQuestion, resetState, startNextQuestion, stopCurrentQuestion } from '../lib/api';
 import { env } from '../lib/env';
+import { logout } from '../lib/auth';
 
 enum QuizStatus {
     NOT_STARTED = 'NOT_STARTED',
@@ -135,11 +135,12 @@ export function AdminPage() {
                 <Button variant="link" onClick={() => setResetOpened(true)}>
                     Reset state
                 </Button>
+                <Button variant="link" onClick={logout}>
+                    Logout
+                </Button>
             </div>
 
             <ResetAlertDialog isOpen={isResetOpened} onReset={reset} onClose={() => setResetOpened(false)} />
-
-            <AuthTest />
         </div>
     );
 }
@@ -208,36 +209,5 @@ function ResetAlertDialog({ isOpen, onReset, onClose }: ResetAlertDialogProps) {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    );
-}
-
-function AuthTest() {
-    const [user, setUser] = useState<UserInfoResponse>({ isAuthenticated: false });
-
-    const authUrl = new URL('/api/auth/login', window.location.origin);
-    authUrl.searchParams.set('redirect_uri', window.location.href);
-
-    useEffect(() => {
-        fetch('/api/auth/user-info')
-            .then(res => res.json())
-            .then(data => {
-                setUser(data);
-            });
-    }, []);
-
-    const logout = () => {
-        fetch('/api/auth/logout', { method: 'POST' }).then(() => {
-            setUser({ isAuthenticated: false });
-        });
-    };
-
-    return (
-        <div>
-            <p>Is authenticated: {user.isAuthenticated ? 'true' : 'false'}</p>
-            <p>user: {JSON.stringify(user)}</p>
-
-            {user.isAuthenticated && <button onClick={logout}>Logout</button>}
-            {!user.isAuthenticated && <a href={authUrl.toString()}>Login</a>}
-        </div>
     );
 }
