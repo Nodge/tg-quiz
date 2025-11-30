@@ -82,8 +82,6 @@ export class PlayersNotificationService {
             `🏆 Общий зачет: <a href="${escapeHTML(env('SITE_URL'))})">${escapeHTML(env('SITE_URL'))}</a>`,
         ].join('\n');
 
-        console.log('SEND FINAL', message);
-
         await this.send({
             userId: player.id,
             html: message,
@@ -95,7 +93,7 @@ export class PlayersNotificationService {
         });
     }
 
-    async sendAnswerConfirmation(question: Question, answer: QuestionAnswer) {
+    public async sendAnswerConfirmation(question: Question, answer: QuestionAnswer) {
         if (!this.replyContext) {
             throw new Error('Can not reply without replyContext');
         }
@@ -109,12 +107,16 @@ export class PlayersNotificationService {
         });
     }
 
-    async sendAnswerRejection() {
+    public async sendAnswerRejection() {
         if (!this.replyContext) {
             throw new Error('Can not reply without replyContext');
         }
 
-        await this.replyContext.editMessageReplyMarkup({ inline_keyboard: [] });
+        try {
+            await this.replyContext.editMessageReplyMarkup({ inline_keyboard: [] });
+        } catch {
+            // the keyboard might already be hidden
+        }
     }
 
     private send(params: SendParams) {

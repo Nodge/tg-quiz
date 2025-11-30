@@ -45,24 +45,16 @@ export class FinishQuestionUseCase {
         const players = await this.playersRepository.findAll();
         const states = await this.playerStateRepository.loadAll();
 
-        console.log('PLAYERS', players);
-        console.log('STATES', states);
-
         const promises = players.map(async player => {
             const state = states.get(player.id);
-            console.log({ player, state });
 
             if (state?.currentMessageId) {
-                console.log('saving state...');
                 await this.playerStateRepository.saveState(player.id, {
                     currentQuestionId: null,
                     currentMessageId: null,
                 });
-                console.log('sending finish message...');
                 await this.playersNotificationService.sendFinishQuestionMessage(player, state, currentQuestion);
             }
-
-            console.log('TEST', { hasNextQuestion });
 
             if (!hasNextQuestion) {
                 await this.playersNotificationService.sendFinalMessage(player);
